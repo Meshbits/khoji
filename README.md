@@ -1,4 +1,4 @@
-# khoji Explorer
+# Khoji Explorer
  Blockchain Explorer for Komodo Platform and it's ecosystem smartchains
 
 
@@ -8,7 +8,7 @@ Back in 2017-2018, lustro hosted explorer for Komodo blockchain under domain htt
 
 I guess since nobody at that moment had required skillset to set this up for Komodo, and the team was already busy with existing work load it sat in our archives until recently. Over these years, I learned and practiced a bit on Go language and recently explored it's codebase, and made few changes to it to make it work.
 
-So, the code in `syncblocks.go` is mostly from the original zcha.in explorer's files, with comments added to the code everywhere possible for whatever I could understand in the code, along with the variable and function name changes through out the file. I changed some parts of checking the new blocks adding to the local blockchain and triggiering the sync function of that data with the RethinkDB database.
+So, the code in `syncblocks.go` is mostly from the original zcha.in explorer's files, with comments added to the code everywhere possible for whatever I could understand in the code, along with the variable and function name changes through out the file. I changed some parts of checking the new blocks adding to the local blockchain and triggiering the sync function of that data with RethinkDB database.
 
 Through my [kmdgo](https://github.com/satindergrewal/kmdgo) go package for Komodo Platform toolset I also added the ability to specify Komodo and it's ecosystem smartchains right at the command line parameters, and not needing to edit or supply any RPC information inside block explorer's code.
 
@@ -23,6 +23,7 @@ Through my [kmdgo](https://github.com/satindergrewal/kmdgo) go package for Komod
 
 - kmdgo go package
 - saplinglib go package
+- RethinkDB go driver package
 
 # Install instructions
 
@@ -85,6 +86,12 @@ go get -u github.com/satindergrewal/saplinglib
 go get -u github.com/satindergrewal/kmdgo
 ```
 
+#### Install RethinkDB driver for Go
+
+```bash
+go get -u gopkg.in/rethinkdb/rethinkdb-go.v6
+```
+
 #### Installing khoji explorer
 
 Clone khoji source code to your machine
@@ -131,6 +138,8 @@ rpcallowip=127.0.0.1
 rpchost=127.0.0.1
 ```
 
+#### Initiating blockchain sync with RethinkdDB database
+
 You can check help for the command line parameters like this:
 ```bash
 $ go run syncblocks.go --help
@@ -147,7 +156,7 @@ So, assuming you have the `verusd` or Verus Desktop running with full blockchain
 go run syncblocks.go -chain vrsc -dbname vrsc
 ```
 
-The above should start syncing blockchain data with the databse, which can be queried via RethinkDB's data explorer at http://localhost:8080/#dataexplorer.
+The above should start syncing blockchain data with the database, which can be queried via RethinkDB's data explorer at http://localhost:8080/#dataexplorer.
 
 The example DB queries can be found in the bottom of file `syncblocks.go`.
 
@@ -155,8 +164,8 @@ Hope this helps install and testing this explorer.
 
 # Features
 
-This code is tested mostly with the VRSCTEST network of [Veruscoin](http://github.com/veruscoin/).
-This code already has the bits which filters and sync the VerusID data to the RethinkDB.
+ - This code is tested mostly with the VRSCTEST network of [Veruscoin](http://github.com/veruscoin/).
+ - VerusID is already supported, and it has it's own table data created in database.
 
 # TODO
 
@@ -166,4 +175,4 @@ This code already has the bits which filters and sync the VerusID data to the Re
 
 # Known Issues
 
-- At the moment, the balance of VRSC blockchain doesn't show correct in VRSCTEST network, mostly because of needing to do some extra code conditions which are spcific to Verus's DeFi features. ** I need help fixing this issue, if anyone can offer that help please.***
+- **Wrong balance of Verus blockchain:** At the moment, the balance of VRSC blockchain doesn't show correct in VRSCTEST network, mostly because of needing to do some extra code conditions which are spcific to Verus's DeFi features. **I need help fixing this issue, if anyone can offer that help please.**
