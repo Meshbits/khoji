@@ -153,8 +153,17 @@ The example DB queries can be found in the bottom of file `syncblocks.go`.
 
 Hope this helps install and testing this explorer.
 
+# Features
+
+This code is tested mostly with the VRSCTEST network of [Veruscoin](http://github.com/veruscoin/).
+This code already has the bits which filters and sync the VerusID data to the RethinkDB.
+
 # TODO
 
 - [ ]	Make Explorer's RPC API using database
 - [ ]	Web Graphical Interface for Explorer
 - [ ]	Make explorer's gRPC API using database
+
+# Known Issues
+
+- At the moment, the balance of VRSC blockchain doesn't show correct in VRSCTEST network, mostly because of needing to do some extra code conditions which are spcific to Verus's DeFi features. ** I need help fixing this issue, if anyone can offer that help please.***
