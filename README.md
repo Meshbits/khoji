@@ -1,4 +1,4 @@
-# khoji
+# khoji Explorer
  Blockchain Explorer for Komodo Platform and it's ecosystem smartchains
 
 
