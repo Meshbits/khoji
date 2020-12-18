@@ -90,7 +90,7 @@ go get -u github.com/satindergrewal/kmdgo
 Clone khoji source code to your machine
 
 ```bash
-git clone https://github.com/satindergrewal/khoji.git
+git clone https://github.com/meshbits/khoji.git
 cd khoji
 ```
 
