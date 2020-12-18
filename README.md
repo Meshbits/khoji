@@ -144,7 +144,7 @@ Usage of /var/folders/67/mw860sbd1s55w43jy4r8vgvw0000gn/T/go-build362506638/b001
 So, assuming you have the `verusd` or Verus Desktop running with full blockchain synced on your machine we can proceed with executing the `sync blockchain` command:
 
 ```bash
-go run syncblocks.go -chain vrsc -dbname kmd
+go run syncblocks.go -chain vrsc -dbname vrsc
 ```
 
 The above should start syncing blockchain data with the databse, which can be queried via RethinkDB's data explorer at http://localhost:8080/#dataexplorer.
