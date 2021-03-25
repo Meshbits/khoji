@@ -180,6 +180,21 @@ Hope this helps install and testing this explorer.
 - [ ]	Web Graphical Interface for Explorer
 - [ ]	Make explorer's gRPC API using database
 
+# Troubleshooting
+
+#### working directory is not part of a module 
+
+```bash
+➜  khoji git:(main) go run createdb/createdb.go -dbname vrsctest
+createdb/createdb.go:20:2: no required module provides package gopkg.in/rethinkdb/rethinkdb-go.v6: working directory is not part of a module
+```
+
+To solve this issue, change the `GO111MODULE` from `on` to `auto`. You can either execute the `go run` or `go build` etc. commands with `GO111MODULE=auto go ...` or export this environment variable in your terminal session temporarily and then execute the `go` commands as mentioned in install/build/run instructions. For example with command:
+
+```bash
+export GO111MODULE=auto
+```
+
 # Known Issues
 
 - **Wrong balance of Verus blockchain:** At the moment, the balance of VRSC blockchain doesn't show correct in VRSCTEST network, mostly because of needing to do some extra code conditions which are spcific to Verus's DeFi features. **I need help fixing this issue, if anyone can offer that help please.**
