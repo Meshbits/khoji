@@ -66,6 +66,13 @@ export CGO_CFLAGS="-I$HOME/go/src/github.com/satindergrewal/saplinglib/src/"
 export CGO_LDFLAGS="-L$HOME/go/src/github.com/satindergrewal/saplinglib/dist/darwin -lsaplinglib -framework Security"
 ```
 
+For MacOS ARM64 setup these environment variables:
+
+```bash
+export CGO_CFLAGS="-I$HOME/go/src/github.com/satindergrewal/saplinglib/src/"
+export CGO_LDFLAGS="-L$HOME/go/src/github.com/satindergrewal/saplinglib/dist/darwin_arm64 -lsaplinglib -framework Security"
+```
+
 For MingW cross-platform windows setup these environment variables:
 
 ```bash
