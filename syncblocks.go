@@ -32,6 +32,7 @@ var session *r.Session
 // Define appname variable. The name value must be the matching value of it's data directory name.
 // Example Komodo's data directory is `komodo`, VerusCoin's data directory is `VRSC` and so on.
 var appName kmdgo.AppType
+var addressToCheck = "i8ebq2RJ8FxkEHEALGJcRfaPagPen5tFkX"
 
 // Rethink database name
 var rDB string
@@ -247,7 +248,7 @@ func checkIfBlocksSynced() {
 					log.Panicf("Failed to write sync info to DB: %v", err)
 				}
 				// and also trigger syncBlocksDB function to check and update database blocks to sync with the blockchain
-				syncBlocksDB()
+				//syncBlocksDB()
 			}
 		}
 	}
@@ -282,6 +283,9 @@ func syncBlocksDB() {
 
 	// fmt.Println("lastSynced -", lastSynced)
 	// fmt.Println("latestBlock -", latestBlock)
+	//lastSynced = uint64(10190)
+	//latestBlock = uint64(10195)
+	//latestBlock = uint64(13395)
 
 	for blockNum := lastSynced; blockNum <= latestBlock; blockNum++ {
 		percentSyncDone := float64(float64(blockNum)/float64(latestBlock)) * 100
@@ -416,7 +420,7 @@ func addMinerAccount(txidData interface{}, block map[string]interface{}) {
 	if err != nil {
 		log.Panicf("Failed to write transaction info to DB: %v", err)
 	}
-	log.Printf("Updated account %s", _minerAddress)
+	//log.Printf("Updated account %s %i", _minerAddress)
 }
 
 func updateSentBalances(txData, retrievedVout, block map[string]interface{}, txSenders []interface{}) {
@@ -472,7 +476,10 @@ func updateSentBalances(txData, retrievedVout, block map[string]interface{}, txS
 		if err != nil {
 			log.Panicf("Failed to write transaction info to DB: %v", err)
 		}
-		log.Printf("Updated account %s", senderAddr)
+		if senderAddr == addressToCheck {
+			log.Printf("Updated sender account %s balance %v height %v", senderAddr, toFixed(-1.0*vInObj["value"].(float64), 8), block["height"], 8)
+		}
+		//log.Printf("Updated account %s", senderAddr)
 	}
 }
 
@@ -498,7 +505,8 @@ func updateRecvBalances(txData, retrievedVout, block map[string]interface{}, txS
 		}
 
 		// if there's a spent information (spentTxId, spentIndex, spentHeight) found in this vout, also add this to the sent side of data
-		if vOutObj.(map[string]interface{})["spentTxId"] != nil {
+		if scriptPubKey["addresses"] != nil {
+		//if vOutObj.(map[string]interface{})["spentTxId"] != nil {
 			// vOutValue = vOutObj.(map[string]interface{})["value"].(float64) - vOutObj.(map[string]interface{})["value"].(float64)
 			// vOutValue = toFixed(-1.0*vOutObj.(map[string]interface{})["value"].(float64), 8)
 			// spentIndex := vOutObj.(map[string]interface{})["spentIndex"]
@@ -507,28 +515,34 @@ func updateRecvBalances(txData, retrievedVout, block map[string]interface{}, txS
 			// collect spent txid to a variable from this vout to add to "sent" side of transactions for this address
 			spentTxID := vOutObj.(map[string]interface{})["spentTxId"]
 			// take the first address as sender address from "addresses" array from vout
-			senderAddr := scriptPubKey["addresses"].([]interface{})[0].(string)
+			//senderAddr := scriptPubKey["addresses"].([]interface{})[0].(string)
 			// update accounts table with balance, totalsent, total sent count, and add the spent txid to sent side of an address.
 			// this insert record to table command if conflicts with the existing account in that table,
 			// it will just merge/update that account's details
-			err := r.DB(rDB).Table("accounts").Insert(map[string]interface{}{
-				"address":    senderAddr,
-				"firstSeen":  block["time"],
-				"lastSeen":   block["time"],
-				"balance":    toFixed(-1.0*vOutObj.(map[string]interface{})["value"].(float64), 8),
-				"totalSent":  toFixed(vOutObj.(map[string]interface{})["value"].(float64), 8),
-				"totalRecv":  0,
-				"minedCount": 0,
-				"recvCount":  0,
-				"sentCount":  1,
-				"mined":      []interface{}{},
-				"sent":       []interface{}{spentTxID},
-				"recv":       []interface{}{},
-			}, r.InsertOpts{Conflict: accountMerge}).Exec(session)
-			if err != nil {
-				log.Panicf("Failed to write transaction info to DB: %v", err)
+
+			for _, voutAddress := range scriptPubKey["addresses"].([]interface{}) {
+				err := r.DB(rDB).Table("accounts").Insert(map[string]interface{}{
+					"address":    voutAddress,
+					"firstSeen":  block["time"],
+					"lastSeen":   block["time"],
+					"balance":    toFixed(vOutValue, 8),
+					"totalSent":  0,
+					"totalRecv":  toFixed(vOutValue, 8),
+					"minedCount": 0,
+					"recvCount":  1,
+					"sentCount":  0,
+					"mined":      []interface{}{},
+					"sent":       []interface{}{spentTxID},
+					"recv":       []interface{}{},
+				}, r.InsertOpts{Conflict: accountMerge}).Exec(session)
+				if err != nil {
+					log.Panicf("Failed to write transaction info to DB: %v", err)
+				}
+				if voutAddress == addressToCheck {
+					log.Printf("Updated receiver account %s balance %v height %v", voutAddress, toFixed(vOutValue, 8), block["height"])
+				}
 			}
-			log.Printf("Updated account %s", senderAddr)
+			//log.Printf("Updated account %s", senderAddr)
 		}
 
 		// if scriptPubKey["spendableoutput"] != nil && scriptPubKey["spendableoutput"].(bool) == false {
@@ -552,7 +566,7 @@ func updateRecvBalances(txData, retrievedVout, block map[string]interface{}, txS
 			continue
 		}
 		// add/update the collected data for account/address in accounts table for each address in the "addresses" array
-		for _, addr := range scriptPubKey["addresses"].([]interface{}) {
+		/*for _, addr := range scriptPubKey["addresses"].([]interface{}) {
 			err := r.DB(rDB).Table("accounts").Insert(map[string]interface{}{
 				"address":    addr.(string),
 				"firstSeen":  block["time"],
@@ -570,8 +584,10 @@ func updateRecvBalances(txData, retrievedVout, block map[string]interface{}, txS
 			if err != nil {
 				log.Panicf("Failed to write transaction info to DB: %v", err)
 			}
-			log.Printf("Updated account %s", addr)
-		}
+			if addr.(string) == addressToCheck {
+				log.Printf("Updated receiver account %s balance, value %v", addr, toFixed(float64(vOutValue), 8))
+			}
+		}*/
 	}
 }
 
