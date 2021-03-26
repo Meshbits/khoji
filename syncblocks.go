@@ -285,7 +285,7 @@ func syncBlocksDB() {
 	// fmt.Println("latestBlock -", latestBlock)
 	//lastSynced = uint64(10190)
 	//latestBlock = uint64(10195)
-	//latestBlock = uint64(13395)
+	//latestBlock = uint64(13494)
 
 	for blockNum := lastSynced; blockNum <= latestBlock; blockNum++ {
 		percentSyncDone := float64(float64(blockNum)/float64(latestBlock)) * 100
@@ -338,11 +338,11 @@ func syncBlocksDB() {
 			// 	fmt.Scanln()
 			// }
 
-			// Update sent values/balances in accounts addresses
-			updateSentBalances(txData, retrievedVout, blockDetails, txSenders)
-
 			// Update recieved values/balances in accounts addresses
 			updateRecvBalances(txData, retrievedVout, blockDetails, txSenders)
+						
+			// Update sent values/balances in accounts addresses
+			updateSentBalances(txData, retrievedVout, blockDetails, txSenders)
 		}
 
 		blockDBItem := map[string]interface{}{
@@ -459,27 +459,78 @@ func updateSentBalances(txData, retrievedVout, block map[string]interface{}, txS
 		// insert/update account/address record in accounts table.
 		// if the address in the table already exists, the conflict will retrun the updated JSON
 		// object with data merged from old and new data collected in this fuction and update the address record in database table.
-		err := r.DB(rDB).Table("accounts").Insert(map[string]interface{}{
-			"address":    senderAddr,
-			"firstSeen":  block["time"],
-			"lastSeen":   block["time"],
-			"balance":    toFixed(-1.0*vInObj["value"].(float64), 8),
-			"totalSent":  toFixed(vInObj["value"].(float64), 8),
-			"totalRecv":  0,
-			"minedCount": 0,
-			"recvCount":  0,
-			"sentCount":  1,
-			"mined":      []interface{}{},
-			"sent":       sentt,
-			"recv":       []interface{}{},
-		}, r.InsertOpts{Conflict: accountMerge}).Exec(session)
-		if err != nil {
-			log.Panicf("Failed to write transaction info to DB: %v", err)
+		voutindex := strconv.Itoa(int(vInObj["vout"].(float64)))
+		res1, err1 := r.DB(rDB).Table("sharedvout").Filter(map[string]interface{}{"hashvout": vInObj["txid"].(string) + ":" + voutindex}).Map(
+			func(row r.Term) interface{} { return row.Field("addresses") }).Run(session)
+		if err1 != nil {
+			log.Panicf("Failed to get shared transaction info from DB: %v", err1)
 		}
-		if senderAddr == addressToCheck {
-			log.Printf("Updated sender account %s balance %v height %v", senderAddr, toFixed(-1.0*vInObj["value"].(float64), 8), block["height"], 8)
+		//log.Printf("query res %v", res1)
+		var row interface{}
+		err2 := res1.One(&row)
+		if err2 == r.ErrEmptyResult {
+			// row not found
 		}
-		//log.Printf("Updated account %s", senderAddr)
+		if err2 != nil {
+			// error
+		}
+		if row != nil {
+			log.Printf("Found shared vout %v", row)
+
+			for _, addr := range row.([]interface{}) {
+				var totalSent float64
+				if senderAddr == addr {
+					totalSent = toFixed(vInObj["value"].(float64), 8)
+				} else {
+					totalSent = 0
+				}
+				log.Printf("Deduct shared balance for addr %v", addr)
+				err := r.DB(rDB).Table("accounts").Insert(map[string]interface{}{
+					"address":    addr,
+					"firstSeen":  block["time"],
+					"lastSeen":   block["time"],
+					"balance":    toFixed(-1.0*vInObj["value"].(float64), 8),
+					"totalSent":  totalSent,
+					"totalRecv":  0,
+					"minedCount": 0,
+					"recvCount":  0,
+					"sentCount":  1,
+					"mined":      []interface{}{},
+					"sent":       sentt,
+					"recv":       []interface{}{},
+				}, r.InsertOpts{Conflict: accountMerge}).Exec(session)
+				if err != nil {
+					log.Panicf("Failed to write transaction info to DB: %v", err)
+				}
+				if addr == addressToCheck {
+					log.Printf("Updated sender account %s balance %v height %v", addr, toFixed(-1.0*vInObj["value"].(float64), 8), block["height"], 8)
+				}
+			}
+		}
+		
+		if row == nil {
+			err := r.DB(rDB).Table("accounts").Insert(map[string]interface{}{
+				"address":    senderAddr,
+				"firstSeen":  block["time"],
+				"lastSeen":   block["time"],
+				"balance":    toFixed(-1.0*vInObj["value"].(float64), 8),
+				"totalSent":  toFixed(vInObj["value"].(float64), 8),
+				"totalRecv":  0,
+				"minedCount": 0,
+				"recvCount":  0,
+				"sentCount":  1,
+				"mined":      []interface{}{},
+				"sent":       sentt,
+				"recv":       []interface{}{},
+			}, r.InsertOpts{Conflict: accountMerge}).Exec(session)
+			if err != nil {
+				log.Panicf("Failed to write transaction info to DB: %v", err)
+			}
+			if senderAddr == addressToCheck {
+				log.Printf("Updated sender account %s balance %v height %v", senderAddr, toFixed(-1.0*vInObj["value"].(float64), 8), block["height"], 8)
+			}
+			//log.Printf("Updated account %s", senderAddr)
+		}
 	}
 }
 
@@ -519,6 +570,20 @@ func updateRecvBalances(txData, retrievedVout, block map[string]interface{}, txS
 			// update accounts table with balance, totalsent, total sent count, and add the spent txid to sent side of an address.
 			// this insert record to table command if conflicts with the existing account in that table,
 			// it will just merge/update that account's details
+			if len(scriptPubKey["addresses"].([]interface{})) > 1 {
+				log.Printf("Shared vout data txid %s index %v", txData["txid"], vOutObj.(map[string]interface{})["n"].(float64))
+				str := fmt.Sprintf("%v", scriptPubKey["addresses"].([]interface{}))
+				fmt.Println(str)
+
+				voutindex := strconv.Itoa(int(vOutObj.(map[string]interface{})["n"].(float64)))
+				err := r.DB(rDB).Table("sharedvout").Insert(map[string]interface{}{
+					"hashvout": txData["txid"].(string) + ":" + voutindex,
+					"addresses": scriptPubKey["addresses"].([]interface{}),
+				}, r.InsertOpts{Conflict: accountMerge}).Exec(session)
+				if err != nil {
+					log.Panicf("Failed to write shared vout info to DB: %v", err)
+				}
+			}
 
 			for _, voutAddress := range scriptPubKey["addresses"].([]interface{}) {
 				err := r.DB(rDB).Table("accounts").Insert(map[string]interface{}{
