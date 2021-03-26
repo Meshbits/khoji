@@ -14,16 +14,16 @@ Through my [kmdgo](https://github.com/satindergrewal/kmdgo) go package for Komod
 
 # Requirements
 
-- Go 1.14+
-- RethinkDB
-- Git
-- Komomod or Verus blockchain daemon
+- [Go](https://golang.org/doc/install) 1.14+
+- [RethinkDB](https://rethinkdb.com/docs/install/)
+- [Git](https://git-scm.com/)
+- [komodod](https://github.com/KomodoPlatform/komodo/releases) or [verusd](https://github.com/VerusCoin/VerusCoin/releases)
 
 #### Dependencies
 
-- kmdgo go package
-- saplinglib go package
-- RethinkDB go driver package
+- [kmdgo](https://github.com/satindergrewal/kmdgo) go package
+- [saplinglib](https://github.com/satindergrewal/saplinglib) go package
+- [RethinkDB](https://github.com/rethinkdb/rethinkdb-go) go driver package
 
 # Install instructions
 
@@ -79,6 +79,38 @@ For MingW cross-platform windows setup these environment variables:
 export CGO_CFLAGS="-I$HOME/go/src/github.com/satindergrewal/saplinglib/src/"
 export CGO_LDFLAGS="-L$HOME/go/src/github.com/satindergrewal/saplinglib/dist/win64 -lsaplinglib -lws2_32 -luserenv"
 export CC="x86_64-w64-mingw32-gcc"
+```
+
+##### Verify environment variable setup
+
+The export commands will setup `cgo` specific environment variables of dependencies required by this software. You can verify that if these required environment variables are reflecting for `go` environment with the following command:
+
+```bash
+go env
+```
+
+On my fresh opened terminal the output of this command looks something like this for these specific go environment variables:
+
+```bash
+➜  ~ go env
+GO111MODULE=""
+GOARCH="arm64"
+...
+CGO_CFLAGS="-g -O2"
+CGO_LDFLAGS="-g -O2"
+...
+```
+
+After executing the export variables for my MacOS ARM64 OS, it looks like this:
+
+```bash
+➜  ~ go env
+GO111MODULE=""
+GOARCH="arm64"
+...
+CGO_CFLAGS="-I/Users/satinder/go/src/github.com/satindergrewal/saplinglib/src/"
+CGO_LDFLAGS="-L/Users/satinder/go/src/github.com/satindergrewal/saplinglib/dist/darwin_arm64 -lsaplinglib -framework Security"
+...
 ```
 
 Now fetch go package:
