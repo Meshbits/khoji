@@ -32,7 +32,7 @@ var session *r.Session
 // Define appname variable. The name value must be the matching value of it's data directory name.
 // Example Komodo's data directory is `komodo`, VerusCoin's data directory is `VRSC` and so on.
 var appName kmdgo.AppType
-var addressToCheck = "i8ebq2RJ8FxkEHEALGJcRfaPagPen5tFkX"
+var addressToCheck = ""
 
 // Rethink database name
 var rDB string
@@ -283,8 +283,8 @@ func syncBlocksDB() {
 
 	// fmt.Println("lastSynced -", lastSynced)
 	// fmt.Println("latestBlock -", latestBlock)
-	//lastSynced = uint64(10190)
-	//latestBlock = uint64(10195)
+	//lastSynced = uint64(20590)
+	//latestBlock = uint64(21955)
 	//latestBlock = uint64(13494)
 
 	for blockNum := lastSynced; blockNum <= latestBlock; blockNum++ {
@@ -444,9 +444,9 @@ func updateSentBalances(txData, retrievedVout, block map[string]interface{}, txS
 			continue
 		}
 		// for some reason if the value in this INPUT/vin is nil, use value from previous OUTPUT collected from insertTxDB() function
-		if vInObj["value"] == nil { // why
+		if vInObj["valueSat"] == nil { // why
 			log.Printf("Value was nil: %v", vInObj)
-			vInObj["value"] = retrievedVout["value"]
+			vInObj["valueSat"] = retrievedVout["valueSat"]
 		}
 		// make a temporary array to store txids
 		sentt := make([]interface{}, 0)
@@ -475,21 +475,22 @@ func updateSentBalances(txData, retrievedVout, block map[string]interface{}, txS
 			// error
 		}
 		if row != nil {
-			log.Printf("Found shared vout %v", row)
-
+			log.Printf("Found shared vout %s %v", vInObj["txid"].(string) + ":" + voutindex, row)
+			log.Printf("Shared vout spent txid %s", txData["txid"])
+			
 			for _, addr := range row.([]interface{}) {
-				var totalSent float64
+				var totalSent int64
 				if senderAddr == addr {
-					totalSent = toFixed(vInObj["value"].(float64), 8)
+					totalSent = int64(vInObj["valueSat"].(float64))
 				} else {
 					totalSent = 0
 				}
-				log.Printf("Deduct shared balance for addr %v", addr)
+				log.Printf("Deduct shared balance for addr %v %v", addr, int(-1.0*vInObj["valueSat"].(float64)))
 				err := r.DB(rDB).Table("accounts").Insert(map[string]interface{}{
 					"address":    addr,
 					"firstSeen":  block["time"],
 					"lastSeen":   block["time"],
-					"balance":    toFixed(-1.0*vInObj["value"].(float64), 8),
+					"balance":    int(-1.0*vInObj["valueSat"].(float64)),
 					"totalSent":  totalSent,
 					"totalRecv":  0,
 					"minedCount": 0,
@@ -502,8 +503,8 @@ func updateSentBalances(txData, retrievedVout, block map[string]interface{}, txS
 				if err != nil {
 					log.Panicf("Failed to write transaction info to DB: %v", err)
 				}
-				if addr == addressToCheck {
-					log.Printf("Updated sender account %s balance %v height %v", addr, toFixed(-1.0*vInObj["value"].(float64), 8), block["height"], 8)
+				if addressToCheck == "" || addr == addressToCheck {
+					log.Printf("Updated sender account %s balance %v height %v", addr, int(-1.0*vInObj["valueSat"].(float64)), block["height"])
 				}
 			}
 		}
@@ -513,8 +514,8 @@ func updateSentBalances(txData, retrievedVout, block map[string]interface{}, txS
 				"address":    senderAddr,
 				"firstSeen":  block["time"],
 				"lastSeen":   block["time"],
-				"balance":    toFixed(-1.0*vInObj["value"].(float64), 8),
-				"totalSent":  toFixed(vInObj["value"].(float64), 8),
+				"balance":    int(-1.0*vInObj["valueSat"].(float64)),
+				"totalSent":  int(vInObj["valueSat"].(float64)),
 				"totalRecv":  0,
 				"minedCount": 0,
 				"recvCount":  0,
@@ -526,8 +527,8 @@ func updateSentBalances(txData, retrievedVout, block map[string]interface{}, txS
 			if err != nil {
 				log.Panicf("Failed to write transaction info to DB: %v", err)
 			}
-			if senderAddr == addressToCheck {
-				log.Printf("Updated sender account %s balance %v height %v", senderAddr, toFixed(-1.0*vInObj["value"].(float64), 8), block["height"], 8)
+			if addressToCheck == "" ||senderAddr == addressToCheck {
+				log.Printf("Updated sender account %s balance %v height %v", senderAddr, int(-1.0*vInObj["valueSat"].(float64)), block["height"])
 			}
 			//log.Printf("Updated account %s", senderAddr)
 		}
@@ -540,7 +541,7 @@ func updateRecvBalances(txData, retrievedVout, block map[string]interface{}, txS
 		// TODO: Need to make seperate code to manage such tyep of vout transactions,
 		// like parsing and storing data about verus currencies
 		scriptPubKey := vOutObj.(map[string]interface{})["scriptPubKey"].(map[string]interface{})
-		vOutValue := toFixed(vOutObj.(map[string]interface{})["value"].(float64), 8)
+		vOutValue := int(vOutObj.(map[string]interface{})["valueSat"].(float64))
 
 		if scriptPubKey["reservetransfer"] != nil {
 			// TODO: add another function to store reservetransfter vouts to a dedicated table
@@ -590,9 +591,9 @@ func updateRecvBalances(txData, retrievedVout, block map[string]interface{}, txS
 					"address":    voutAddress,
 					"firstSeen":  block["time"],
 					"lastSeen":   block["time"],
-					"balance":    toFixed(vOutValue, 8),
+					"balance":    vOutValue,
 					"totalSent":  0,
-					"totalRecv":  toFixed(vOutValue, 8),
+					"totalRecv":  vOutValue,
 					"minedCount": 0,
 					"recvCount":  1,
 					"sentCount":  0,
@@ -603,8 +604,8 @@ func updateRecvBalances(txData, retrievedVout, block map[string]interface{}, txS
 				if err != nil {
 					log.Panicf("Failed to write transaction info to DB: %v", err)
 				}
-				if voutAddress == addressToCheck {
-					log.Printf("Updated receiver account %s balance %v height %v", voutAddress, toFixed(vOutValue, 8), block["height"])
+				if addressToCheck == "" || voutAddress == addressToCheck {
+					log.Printf("Updated receiver account %s balance %v height %v", voutAddress, vOutValue, block["height"])
 				}
 			}
 			//log.Printf("Updated account %s", senderAddr)
@@ -624,7 +625,7 @@ func updateRecvBalances(txData, retrievedVout, block map[string]interface{}, txS
 		// if "spendableoutput = true", it means the valeu/amount in this vout is spendable.
 		// add this like a normal balance, total recieved, total recieved counts, and txid to the list of recived txids.
 		if scriptPubKey["spendableoutput"] != nil && scriptPubKey["spendableoutput"].(bool) == true {
-			vOutValue = toFixed(vOutObj.(map[string]interface{})["value"].(float64), 8)
+			vOutValue = int(vOutObj.(map[string]interface{})["valueSat"].(float64))
 		}
 		// if there is no "addresses" JSON key in vout, just skip to process the next vout data
 		if scriptPubKey["addresses"] == nil {
@@ -844,8 +845,8 @@ func insertTxDB(txIndex int, txidData interface{}, block map[string]interface{})
 	return retrievedVout, txSenders
 }
 
-func accountMerge(key r.Term, oldDoc r.Term, newDoc r.Term) interface{} {
-	return map[string]interface{}{
+func accountMerge(id, oldDoc, newDoc r.Term) interface{} {
+	return newDoc.Merge(map[string]interface{}{
 		"address":    oldDoc.Field("address"),
 		"firstSeen":  oldDoc.Field("firstSeen"),
 		"lastSeen":   newDoc.Field("lastSeen"),
@@ -855,10 +856,10 @@ func accountMerge(key r.Term, oldDoc r.Term, newDoc r.Term) interface{} {
 		"minedCount": oldDoc.Field("minedCount").Add(newDoc.Field("minedCount")),
 		"recvCount":  oldDoc.Field("recvCount").Add(newDoc.Field("recvCount")),
 		"sentCount":  oldDoc.Field("sentCount").Add(newDoc.Field("sentCount")),
-		"mined":      newDoc.Field("mined").Default([]interface{}{}).Add(oldDoc.Field("mined").Default([]interface{}{})), // .SetUnion([]interface{}{}),
-		"recv":       newDoc.Field("recv").Default([]interface{}{}).Add(oldDoc.Field("recv").Default([]interface{}{})),   //.SetUnion([]interface{}{}),
-		"sent":       newDoc.Field("sent").Default([]interface{}{}).Add(oldDoc.Field("sent").Default([]interface{}{})),   //.SetUnion([]interface{}{}),
-	}
+		//"mined":      newDoc.Field("mined").Default([]interface{}{}).Add(oldDoc.Field("mined").Default([]interface{}{})), // .SetUnion([]interface{}{}),
+		//"recv":       newDoc.Field("recv").Default([]interface{}{}).Add(oldDoc.Field("recv").Default([]interface{}{})),   //.SetUnion([]interface{}{}),
+		//"sent":       newDoc.Field("sent").Default([]interface{}{}).Add(oldDoc.Field("sent").Default([]interface{}{})),   //.SetUnion([]interface{}{}),
+	})
 }
 
 func identityMerge(key r.Term, oldDoc r.Term, newDoc r.Term) interface{} {
