@@ -32,6 +32,8 @@ var session *r.Session
 // Define appname variable. The name value must be the matching value of it's data directory name.
 // Example Komodo's data directory is `komodo`, VerusCoin's data directory is `VRSC` and so on.
 var appName kmdgo.AppType
+// local "bloom filter" to see only address specific balance changes
+// if left empty will print data for all addresses
 var addressToCheck = ""
 
 // Rethink database name
@@ -248,6 +250,9 @@ func checkIfBlocksSynced() {
 					log.Panicf("Failed to write sync info to DB: %v", err)
 				}
 				// and also trigger syncBlocksDB function to check and update database blocks to sync with the blockchain
+				/*
+					pbca26: re-enable to constantly sync blocks?
+				*/
 				//syncBlocksDB()
 			}
 		}
@@ -459,6 +464,11 @@ func updateSentBalances(txData, retrievedVout, block map[string]interface{}, txS
 		// insert/update account/address record in accounts table.
 		// if the address in the table already exists, the conflict will retrun the updated JSON
 		// object with data merged from old and new data collected in this fuction and update the address record in database table.
+		/*
+			pbca26:
+			check if vin is shared between several addresses
+			if it is then subtract an amount from all addresses equally
+		*/
 		voutindex := strconv.Itoa(int(vInObj["vout"].(float64)))
 		res1, err1 := r.DB(rDB).Table("sharedvout").Filter(map[string]interface{}{"hashvout": vInObj["txid"].(string) + ":" + voutindex}).Map(
 			func(row r.Term) interface{} { return row.Field("addresses") }).Run(session)
@@ -543,7 +553,13 @@ func updateRecvBalances(txData, retrievedVout, block map[string]interface{}, txS
 		scriptPubKey := vOutObj.(map[string]interface{})["scriptPubKey"].(map[string]interface{})
 		vOutValue := int(vOutObj.(map[string]interface{})["valueSat"].(float64))
 
-		if scriptPubKey["reservetransfer"] != nil {
+		/*
+			pbca26:
+			these two bits prevented calculating accurate received amounts for addresses
+			likely don't need them blocking the loop
+			however it's a good idea to process them for example to make utxo data
+		*/
+		/*if scriptPubKey["reservetransfer"] != nil {
 			// TODO: add another function to store reservetransfter vouts to a dedicated table
 			// for now skip "reservetransfer" vout to process next vout
 			continue
@@ -554,7 +570,7 @@ func updateRecvBalances(txData, retrievedVout, block map[string]interface{}, txS
 			// so skip this on and process the next one??
 			// I'm honestly not sure if I'm doing it right :(
 			continue
-		}
+		}*/
 
 		// if there's a spent information (spentTxId, spentIndex, spentHeight) found in this vout, also add this to the sent side of data
 		if scriptPubKey["addresses"] != nil {
@@ -571,6 +587,12 @@ func updateRecvBalances(txData, retrievedVout, block map[string]interface{}, txS
 			// update accounts table with balance, totalsent, total sent count, and add the spent txid to sent side of an address.
 			// this insert record to table command if conflicts with the existing account in that table,
 			// it will just merge/update that account's details
+			/*
+				pbca26:
+				this bit is required in order to get accurate balances as some transactions have multi-address outputs
+				basically it populates sharedvout table with hash, vout and address array values
+				e.g. https://testex.veruscoin.io/api/getrawtransaction?txid=8c0e02f3772d14902e2849f5d984f0dd63a3d507713075cce72c7c8f5f2c35e4&decrypt=1
+			*/
 			if len(scriptPubKey["addresses"].([]interface{})) > 1 {
 				log.Printf("Shared vout data txid %s index %v", txData["txid"], vOutObj.(map[string]interface{})["n"].(float64))
 				str := fmt.Sprintf("%v", scriptPubKey["addresses"].([]interface{}))
@@ -628,9 +650,17 @@ func updateRecvBalances(txData, retrievedVout, block map[string]interface{}, txS
 			vOutValue = int(vOutObj.(map[string]interface{})["valueSat"].(float64))
 		}
 		// if there is no "addresses" JSON key in vout, just skip to process the next vout data
-		if scriptPubKey["addresses"] == nil {
+		/*
+		  pbca26: moved this bit higher
+		*/
+		/*if scriptPubKey["addresses"] == nil {
 			continue
-		}
+		}*/
+		/*
+			pbca26:
+			we don't need to do double work here
+			all vins/vouts can be processed at one pass as i did above
+		*/
 		// add/update the collected data for account/address in accounts table for each address in the "addresses" array
 		/*for _, addr := range scriptPubKey["addresses"].([]interface{}) {
 			err := r.DB(rDB).Table("accounts").Insert(map[string]interface{}{
@@ -856,6 +886,12 @@ func accountMerge(id, oldDoc, newDoc r.Term) interface{} {
 		"minedCount": oldDoc.Field("minedCount").Add(newDoc.Field("minedCount")),
 		"recvCount":  oldDoc.Field("recvCount").Add(newDoc.Field("recvCount")),
 		"sentCount":  oldDoc.Field("sentCount").Add(newDoc.Field("sentCount")),
+		/* 
+			pbca26:
+			commented out due to very slow sync
+			probably needs a rework for example to store mined, received and sent transactions as as separate documents in a dedicated table
+			this should speed up sync and solve other potential bottlenecks
+		*/
 		//"mined":      newDoc.Field("mined").Default([]interface{}{}).Add(oldDoc.Field("mined").Default([]interface{}{})), // .SetUnion([]interface{}{}),
 		//"recv":       newDoc.Field("recv").Default([]interface{}{}).Add(oldDoc.Field("recv").Default([]interface{}{})),   //.SetUnion([]interface{}{}),
 		//"sent":       newDoc.Field("sent").Default([]interface{}{}).Add(oldDoc.Field("sent").Default([]interface{}{})),   //.SetUnion([]interface{}{}),
