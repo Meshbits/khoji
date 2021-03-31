@@ -64,7 +64,7 @@ func main() {
 	go networkInfoDB()
 	go txAccountBlockTimeUpdate()
 
-	// go checkSyncBlocksDB()
+	//go checkSyncBlocksDB()
 	go syncBlocksDB()
 	go checkIfBlocksSynced()
 
@@ -253,7 +253,7 @@ func checkIfBlocksSynced() {
 				/*
 					pbca26: re-enable to constantly sync blocks?
 				*/
-				//syncBlocksDB()
+				syncBlocksDB()
 			}
 		}
 	}
