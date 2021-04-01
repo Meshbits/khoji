@@ -80,7 +80,8 @@ func main() {
 	createIndex(`identities`, `identityaddress`)
 	createIndex(`identities`, `parent`)
 	createIndex(`identities`, `privateaddress`)
-
+	createTable(`sharedvout`, `hash`)
+	createIndex(`sharedvout`, `hashvout`)
 }
 
 func dropDB(db string) {
