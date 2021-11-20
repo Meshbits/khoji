@@ -25,6 +25,7 @@ import (
 
 	"github.com/satindergrewal/kmdgo"
 	r "gopkg.in/rethinkdb/rethinkdb-go.v6"
+	"./http"
 )
 
 // session for rethink db
@@ -62,6 +63,8 @@ func main() {
 	// fmt.Println("dbname:", *rDBName)
 	appName = kmdgo.AppType(*chainName)
 	rDB = *rDBName
+
+	go http.LaunchServer()
 
 	go networkInfoDB()
 	go txAccountBlockTimeUpdate()
