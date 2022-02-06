@@ -1,4 +1,4 @@
-// Copyright © 2018-2020 Satinderjit Singh.
+// Copyright © 2018-2021 Satinderjit Singh.
 //
 // See the AUTHORS, DEVELOPER-AGREEMENT and LICENSE files at
 // the top-level directory of this distribution for the individual copyright
@@ -9,6 +9,8 @@
 // or distributed except according to the terms contained in the LICENSE file
 //
 // Removal or modification of this copyright notice is prohibited.
+
+// TODO: parse currencies
 
 package main
 
@@ -23,6 +25,7 @@ import (
 
 	"github.com/satindergrewal/kmdgo"
 	r "gopkg.in/rethinkdb/rethinkdb-go.v6"
+	"./http"
 )
 
 // session for rethink db
@@ -60,6 +63,8 @@ func main() {
 	// fmt.Println("dbname:", *rDBName)
 	appName = kmdgo.AppType(*chainName)
 	rDB = *rDBName
+
+	go http.LaunchServer()
 
 	go networkInfoDB()
 	go txAccountBlockTimeUpdate()
@@ -509,6 +514,7 @@ func updateSentBalances(txData, retrievedVout, block map[string]interface{}, txS
 					"mined":      []interface{}{},
 					"sent":       sentt,
 					"recv":       []interface{}{},
+					"transactions": []interface{}{txData["txid"]},
 				}, r.InsertOpts{Conflict: accountMerge}).Exec(session)
 				if err != nil {
 					log.Panicf("Failed to write transaction info to DB: %v", err)
@@ -533,6 +539,7 @@ func updateSentBalances(txData, retrievedVout, block map[string]interface{}, txS
 				"mined":      []interface{}{},
 				"sent":       sentt,
 				"recv":       []interface{}{},
+				"transactions": []interface{}{txData["txid"]},
 			}, r.InsertOpts{Conflict: accountMerge}).Exec(session)
 			if err != nil {
 				log.Panicf("Failed to write transaction info to DB: %v", err)
@@ -622,6 +629,7 @@ func updateRecvBalances(txData, retrievedVout, block map[string]interface{}, txS
 					"mined":      []interface{}{},
 					"sent":       []interface{}{spentTxID},
 					"recv":       []interface{}{},
+					"transactions": []interface{}{txData["txid"]},
 				}, r.InsertOpts{Conflict: accountMerge}).Exec(session)
 				if err != nil {
 					log.Panicf("Failed to write transaction info to DB: %v", err)
@@ -886,6 +894,8 @@ func accountMerge(id, oldDoc, newDoc r.Term) interface{} {
 		"minedCount": oldDoc.Field("minedCount").Add(newDoc.Field("minedCount")),
 		"recvCount":  oldDoc.Field("recvCount").Add(newDoc.Field("recvCount")),
 		"sentCount":  oldDoc.Field("sentCount").Add(newDoc.Field("sentCount")),
+		"transactions":      newDoc.Field("transactions").Default([]interface{}{}).Add(oldDoc.Field("transactions").Default([]interface{}{})).SetUnion([]interface{}{}), 
+
 		/* 
 			pbca26:
 			commented out due to very slow sync
