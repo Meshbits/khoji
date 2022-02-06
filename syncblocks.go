@@ -25,7 +25,7 @@ import (
 
 	"github.com/satindergrewal/kmdgo"
 	r "gopkg.in/rethinkdb/rethinkdb-go.v6"
-	"./http"
+	"github.com/Meshbits/khoji/http"
 )
 
 // session for rethink db
