@@ -2,16 +2,18 @@
   <div>
     <img alt="Vue logo" src="./assets/logo.png" width="50px" style="margin-bottom: 40px">
     <div class="container">
-      content here
+      <NetworkInfoTable />
     </div>
   </div>
 </template>
 
 <script>
+import NetworkInfoTable from './components/NetworkInfoTable.vue'
 
 export default {
   name: 'App',
   components: {
+    NetworkInfoTable
   }
 }
 </script>
