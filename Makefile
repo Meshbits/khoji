@@ -36,7 +36,7 @@ CURL_DL=curl -LJ
 RM_RFV=rm -rfv
 UNZIP=unzip
 TAR_GZ=tar -cvzf
-CHECKOUT_BRANCH=pbca26
+CHECKOUT_BRANCH=main
 
 # OS condition reference link: https://gist.github.com/sighingnow/deee806603ec9274fd47
 UNAME_S=$(shell uname -s)
