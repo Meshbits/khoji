@@ -654,7 +654,7 @@ func updateRecvBalances(txData, retrievedVout, block map[string]interface{}, txS
 				khojiutils.Log.Printf("Shared vout data txid %s index %v", txData["txid"], vOutObj.(map[string]interface{})["n"].(float64))
 				str := fmt.Sprintf("%v", scriptPubKey["addresses"].([]interface{}))
 				// fmt.Println(str)
-				khojiutils.Log.Printf("scriptPubKey[\"addresses\"]", str)
+				khojiutils.Log.Println("scriptPubKey[\"addresses\"]", str)
 
 				voutindex := strconv.Itoa(int(vOutObj.(map[string]interface{})["n"].(float64)))
 				err := r.DB(rDB).Table("sharedvout").Insert(map[string]interface{}{
