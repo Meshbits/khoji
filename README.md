@@ -48,6 +48,13 @@ brew install go
 
 Follow RethinkDB install instructions from it's official source: https://rethinkdb.com/docs/install/
 
+
+### Setup developer environment
+
+If you will be developing on your local machine it's better to setup `saplinglib` and `kmdgo` as explained in next steps.
+
+If you will be just setting up and using the explorer, either try getting the latest release binaries, or if you prefer to compile, then check the steps to build a redistributable release with `make` command.
+
 #### Install saplinglib
 
 Installing and setting saplinglib, so you have to get that package and set environment variables.
@@ -131,7 +138,7 @@ go get -u github.com/satindergrewal/kmdgo
 go get -u gopkg.in/rethinkdb/rethinkdb-go.v6
 ```
 
-#### Installing khoji explorer
+### Installing khoji explorer
 
 Clone khoji source code to your machine
 
@@ -161,7 +168,7 @@ It will output bunch of lines similar to this:
 If you see similar outputs, that means it has created the dabase successfully.
 You can also check the database by opening http://localhost:8080 in your browser.
 
-#### Installing Komodo or Veruscoin daemon
+### Installing Komodo or Veruscoin daemon
 
 You can either run `komodod` or `verusd` which is pre-compiled and you just run the blockchain daemon like usual and sync it fully on your machine via command line, or even using Verus Desktop, and start blockchain daemons with full sync mode from it. Make sure it is not running as light wallet.
 
@@ -177,27 +184,30 @@ rpcallowip=127.0.0.1
 rpchost=127.0.0.1
 ```
 
-#### Initiating blockchain sync with RethinkdDB database
+### Initiating blockchain sync with RethinkdDB database
 
 You can check help for the command line parameters like this:
 ```bash
-$ go run syncblocks.go --help
-Usage of /var/folders/67/mw860sbd1s55w43jy4r8vgvw0000gn/T/go-build362506638/b001/exe/syncblocks:
-  -chain komodo
-        Define appname variable. The name value must be the matching value of it's data directory name. Example Komodo's data directory is komodo, VerusCoin's data directory is `VRSC` and so on. (default "VRSC")
+$ ./khoji --help
+Usage of /var/folders/67/mw860sbd1s55w43jy4r8vgvw0000gn/T/go-build362506638/b001/exe/main:
+Please select Rethink database name to sync blochaain data with
+  -chain VRSC
+    	Define appname variable. The name value must be the matching value of it's data directory name. Example VerusCoin's data directory is VRSC and so on. (default "VRSC")
   -dbname string
-        Rethink database name (default "vrsc")
+    	Rethink database name
+  -setupdb string
+    	Rethink database name to create and setup with all tables required for explorer
 ```
 
 So, assuming you have the `verusd` or Verus Desktop running with full blockchain synced on your machine we can proceed with executing the `sync blockchain` command:
 
 ```bash
-go run syncblocks.go -chain vrsc -dbname vrsc
+./khoji -chain vrsc -dbname vrsc
 ```
 
 The above should start syncing blockchain data with the database, which can be queried via RethinkDB's data explorer at http://localhost:8080/#dataexplorer.
 
-The example DB queries can be found in the bottom of file `syncblocks.go`.
+The example DB queries can be found in the bottom of file `main.go`.
 
 Hope this helps install and testing this explorer.
 
@@ -208,7 +218,7 @@ Hope this helps install and testing this explorer.
 
 # TODO
 
-- [ ]	Make Explorer's RPC API using database
+- [-]	Make Explorer's RPC API using database
 - [ ]	Web Graphical Interface for Explorer
 - [ ]	Make explorer's gRPC API using database
 

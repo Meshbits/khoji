@@ -106,7 +106,7 @@ build-osx: deps-osx
 	cd $(DIST_OSX_PATH); zip -r ../$(BINARY_NAME)_macos.zip *
 	$(RM_RFV) $(DIST_OSX_PATH)
 	cd $(ROOT_DIR)
-build-osx-arm: 
+build-osx-arm: deps-osx-arm
 	$(GITCMD) checkout $(CHECKOUT_BRANCH)
 	$(MKDIR_P) $(DIST_OSX_ARM_PATH)
 	GO111MODULE=auto CGO_CFLAGS="-I$(HOME)/go/src/github.com/satindergrewal/saplinglib/src/" CGO_LDFLAGS="-L$(HOME)/go/src/github.com/satindergrewal/saplinglib/dist/darwin_arm64 -lsaplinglib -framework Security" CGO_ENABLED=1 GOOS=darwin GOARCH=arm64 $(GOBUILD) -o $(DIST_OSX_ARM_PATH)/$(BINARY_NAME) -v
