@@ -227,6 +227,86 @@ To solve this issue, change the `GO111MODULE` from `on` to `auto`. You can eithe
 export GO111MODULE=auto
 ```
 
-# Known Issues
+<!-- # Known Issues
 
-- **Wrong balance of Verus blockchain:** At the moment, the balance of VRSC blockchain doesn't show correct in VRSCTEST network, mostly because of needing to do some extra code conditions which are spcific to Verus's DeFi features. **I need help fixing this issue, if anyone can offer that help please.**
+- **Wrong balance of Verus blockchain:** At the moment, the balance of VRSC blockchain doesn't show correct in VRSCTEST network, mostly because of needing to do some extra code conditions which are spcific to Verus's DeFi features. **I need help fixing this issue, if anyone can offer that help please.** -->
+
+#### Khoji logs
+
+If starting Khoji it will only show sync progress in cosole output.
+To view the detailed logs you can check `khoji.log` file in the same directory where you executed Khoji binary from.
+Following example command on Linux/OSX will show updated prints being pushed to `khoji.log` file:
+
+```shell
+cd $HOME/go/src/github.com/Meshbits/khoji
+tail -f khoji.log
+```
+
+And Windows users can use the following command in PowerShell to check live khoji logs:
+```shell
+Get-Content .\khoji.log -Wait
+```
+
+you can press CTRL+C to cancel `tail` or `Get-Content` command's output.
+
+#### Making a release build
+
+Release builds can be made cross platform.
+Means you can build Mac OS build on Linux, and Linux builds on Mac OS,
+thanks to Go's cross-compilation capabilities.
+
+##### Linux build
+
+To make Linux distributable build execute the following command:
+
+```shell
+cd $HOME/go/src/github.com/Meshbits/khoji
+make build-linux
+```
+
+After this command you'll find a zipped copy of linux distributable file under `dist/dist_unix` directory in `$HOME/go/src/github.com/Meshbits/khoji/`.
+
+##### MacOS x86_64 build
+
+To make Mac OS distributable build execute the following command:
+
+```shell
+cd $HOME/go/src/github.com/Meshbits/khoji
+make build-osx
+```
+
+Smiliar to Linux build, for Mac OS you'll find zipped file under `dist/dist_osx` in `$HOME/go/src/github.com/Meshbits/khoji/`.
+
+##### MacOS arm64 build
+
+To make Mac OS distributable build for M1 Mac execute the following command:
+
+```shell
+cd $HOME/go/src/github.com/Meshbits/khoji
+make build-osx-arm
+```
+
+Smiliar to MacOS x86_64 build, for MacOS arm64 you'll find zipped archive file under `dist/dist_osx_arm` in `$HOME/go/src/github.com/Meshbits/khoji/`.
+
+##### Windows build
+
+To make Windows distributable build execute the following command:
+
+```shell
+cd %USERPROFILE%\go\src\github.com\Meshbits\khoji
+make build-win
+```
+
+You'll find the windows build files zipped `dist/dist_win`.
+
+
+##### Clean build
+
+To clean all compiled files execute the following command:
+
+```shell
+cd $HOME/go/src/github.com/Meshbits/khoji
+make clean
+```
+
+It will delete all dist and binary files the build commands created.
