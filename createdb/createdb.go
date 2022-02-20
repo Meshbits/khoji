@@ -10,7 +10,7 @@
 //
 // Removal or modification of this copyright notice is prohibited.
 
-package main
+package createdb
 
 import (
 	"encoding/json"
@@ -37,15 +37,17 @@ func init() {
 	}
 }
 
-func main() {
+func CreateDb(dnname string) {
 
-	rDBName := flag.String("dbname", "", "Rethink database name")
-	flag.Parse()
+	// rDBName := flag.String("dbname", "", "Rethink database name")
+	// flag.Parse()
 	// fmt.Println("dbname:", *rDBName)
-	rDB = *rDBName
+	// rDB = *rDBName
+	rDB = dnname
 
 	if rDB == "" {
 		fmt.Println("Please select dbname")
+		flag.PrintDefaults()
 		return
 	}
 
