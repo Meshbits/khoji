@@ -10,7 +10,7 @@
 //
 // Removal or modification of this copyright notice is prohibited.
 
-package createdb
+package khojiutils
 
 import (
 	"encoding/json"
