@@ -8,7 +8,6 @@ import (
 )
 
 func LaunchServer() {
-	fmt.Println(rDB)
-	router := InitRooter(rDB)
+	router := InitRooter()
 	fasthttp.ListenAndServe(":"+fmt.Sprintf("%d", 3334), router.Handler)
 }
