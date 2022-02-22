@@ -306,7 +306,7 @@ Get-Content .\khoji.log -Wait
 
 you can press CTRL+C to cancel `tail` or `Get-Content` command's output.
 
-#### Making a release build
+# Making a release build
 
 Release builds can be made cross platform.
 Means you can build Mac OS build on Linux, and Linux builds on Mac OS,
