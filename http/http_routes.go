@@ -333,6 +333,10 @@ func getIdentitiesSlice(ctx *fasthttp.RequestCtx) {
 }
 
 func getNetworkInfo(ctx *fasthttp.RequestCtx) {
+	if rDB == "" {
+		fmt.Println("Please select dbname")
+		return
+	}
 	res1, err1 := r.DB(rDB).Table("network").Run(session)
 	if err1 != nil {
 		log.Panicf("Failed to get network info from DB: %v", err1)
