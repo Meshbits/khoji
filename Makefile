@@ -121,9 +121,9 @@ build: $(BUILD_DEPS)
 #	$(GITCMD) checkout $(CHECKOUT_BRANCH)
 #	$(GOBUILD) -o $(BINARY_NAME) -v
 	$(BUILD_KHOJI)
-	@echo $(BUILD_DEPS)
-	@echo $(BUILD_KHOJI)
-	@echo $(OS_ARCH)
+#	@echo $(BUILD_DEPS)
+#	@echo $(BUILD_KHOJI)
+#	@echo $(OS_ARCH)
 
 clean: 
 	$(GOCLEAN)

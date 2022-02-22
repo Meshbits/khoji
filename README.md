@@ -90,6 +90,7 @@ Please select Rethink database name to sync blochaain data with
     	Rethink database name to create and setup with all tables required for explorer
 ```
 
+Now go to [Running khoji explorer](#running-khoji-explorer) to read further instructions.
 
 ## Advanced Installation Instructions
 
@@ -184,7 +185,7 @@ go get -u github.com/satindergrewal/kmdgo
 go get -u gopkg.in/rethinkdb/rethinkdb-go.v6
 ```
 
-### Installing khoji explorer
+## Running khoji explorer
 
 Clone khoji source code to your machine
 
@@ -202,7 +203,7 @@ rethinkdb
 Create the database for explorer. For example, creating database for veruscoin with the DB name "vrsc":
 
 ```bash
-go run createdb/createdb.go -dbname vrsc
+./khoji -setupdb vrsctest
 ```
 
 It will output bunch of lines similar to this:
