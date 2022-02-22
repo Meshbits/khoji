@@ -190,7 +190,7 @@ build-osx-arm: deps-osx-arm
 	cd $(DIST_OSX_ARM_PATH); zip -r ../$(BINARY_NAME)_macos_arm64.zip *
 	$(RM_RFV) $(DIST_OSX_ARM_PATH)
 	cd $(ROOT_DIR)
-build-win:
+build-win: deps-win
 	$(GITCMD) checkout $(CHECKOUT_BRANCH)
 	$(MKDIR_P) $(DIST_WIN_PATH)
 	$(DEPS_WIN) $(GOBUILD) -o $(DIST_WIN_PATH)/$(BINARY_WIN) -v

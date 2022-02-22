@@ -24,12 +24,10 @@ var rDB string
 var MAX_ITEMS_PP int = 10
 
 func init() {
-	rDB = "vrsctest"
-
 	var err error
 	session, err = rdb.Connect(rdb.ConnectOpts{
-		Address: "localhost:28015",
-		// Database: rDB,
+		Address:  "localhost:28015",
+		Database: rDB,
 	})
 	if err != nil {
 		fmt.Println(err)

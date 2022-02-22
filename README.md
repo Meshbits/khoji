@@ -52,6 +52,21 @@ brew install git go
 
 Follow RethinkDB install instructions from it's official source: https://rethinkdb.com/docs/install/
 
+On Ubuntu you can install using following instructions:
+
+```shell
+source /etc/lsb-release && echo "deb https://download.rethinkdb.com/repository/ubuntu-$DISTRIB_CODENAME $DISTRIB_CODENAME main" | sudo tee /etc/apt/sources.list.d/rethinkdb.list
+wget -qO- https://download.rethinkdb.com/repository/raw/pubkey.gpg | sudo apt-key add -
+sudo apt-get update
+sudo apt-get install rethinkdb
+```
+
+On MacOS can install using brew:
+
+```shell
+brew update && brew install rethinkdb
+```
+
 ## Quick install
 
 Once you are ready with the Golang installed for your OS, and RethinkDB service started, follow these steps to build `khoji`:
