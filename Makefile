@@ -1,13 +1,14 @@
 # Go parameters
 GOCMD=go
+GOPATH=$(shell go env GOPATH)
 GOBUILD=$(GOCMD) build
 GOCLEAN=$(GOCMD) clean
 #GOTEST=$(GOCMD) test
 GOGET=$(GOCMD) get
 CGO_CFLAGS=$(shell env CGO_CFLAGS="-I$HOME/go/src/github.com/satindergrewal/saplinglib/src/")
 CGO_LDFLAGS_DARWIN=$(shell env CGO_LDFLAGS="-L$HOME/go/src/github.com/satindergrewal/saplinglib/dist/darwin -lsaplinglib -framework Security")
-CGO_LDFLAGS_WIN="-L$(HOME)/go/src/github.com/satindergrewal/saplinglib/dist/win64 -lsaplinglib -lws2_32 -luserenv"
-CGO_LDFLAGS_LINUX="-L$(HOME)/go/src/github.com/satindergrewal/saplinglib/dist/linux -lsaplinglib -lpthread -ldl -lm"
+CGO_LDFLAGS_WIN="-L$(GOPATH)/src/github.com/satindergrewal/saplinglib/dist/win64 -lsaplinglib -lws2_32 -luserenv"
+CGO_LDFLAGS_LINUX="-L$(GOPATH)/src/github.com/satindergrewal/saplinglib/dist/linux -lsaplinglib -lpthread -ldl -lm"
 CGO_CC_WIN="x86_64-w64-mingw32-gcc"
 MKDIR_P=mkdir -p
 GITCMD=git
@@ -37,6 +38,10 @@ RM_RFV=rm -rfv
 UNZIP=unzip
 TAR_GZ=tar -cvzf
 CHECKOUT_BRANCH=main
+DEPS_LINUX=GO111MODULE=auto CGO_ENABLED=1 GOOS=linux GOARCH=amd64 CGO_CFLAGS="-I$(GOPATH)/src/github.com/satindergrewal/saplinglib/src/" CGO_LDFLAGS="-L$(GOPATH)/src/github.com/satindergrewal/saplinglib/dist/linux -lsaplinglib -lpthread -ldl -lm"
+DEPS_OSX=GO111MODULE=auto CGO_ENABLED=1 GOOS=darwin GOARCH=amd64 CGO_CFLAGS="-I$(GOPATH)/src/github.com/satindergrewal/saplinglib/src/" CGO_LDFLAGS="-L$(GOPATH)/src/github.com/satindergrewal/saplinglib/dist/darwin -lsaplinglib -framework Security"
+DEPS_OSX_ARM=GO111MODULE=auto CGO_ENABLED=1 GOOS=darwin GOARCH=arm64 CGO_CFLAGS="-I$(GOPATH)/src/github.com/satindergrewal/saplinglib/src/" CGO_LDFLAGS="-L$(GOPATH)/src/github.com/satindergrewal/saplinglib/dist/darwin_arm64 -lsaplinglib -framework Security"
+DEPS_WIN=GO111MODULE=auto CGO_ENABLED=1 GOOS=windows GOARCH=amd64 CGO_CFLAGS="-I$(GOPATH)/src/github.com/satindergrewal/saplinglib/src/" CGO_LDFLAGS="-L$(GOPATH)/src/github.com/satindergrewal/saplinglib/dist/win64 -lsaplinglib -lws2_32 -luserenv" CC="x86_64-w64-mingw32-gcc"
 
 # OS condition reference link: https://gist.github.com/sighingnow/deee806603ec9274fd47
 UNAME_S=$(shell uname -s)
@@ -61,39 +66,39 @@ run:
 	$(GOBUILD) -o $(BINARY_NAME) -v 
 	# ./$(BINARY_NAME) start
 deps-linux:
-	GO111MODULE=auto CGO_ENABLED=1 GOOS=linux GOARCH=amd64 CGO_CFLAGS="-I$(HOME)/go/src/github.com/satindergrewal/saplinglib/src/" CGO_LDFLAGS="-L$(HOME)/go/src/github.com/satindergrewal/saplinglib/dist/linux -lsaplinglib -lpthread -ldl -lm" $(GOGET) -u github.com/satindergrewal/kmdgo
-	GO111MODULE=auto CGO_ENABLED=1 GOOS=linux GOARCH=amd64 CGO_CFLAGS="-I$(HOME)/go/src/github.com/satindergrewal/saplinglib/src/" CGO_LDFLAGS="-L$(HOME)/go/src/github.com/satindergrewal/saplinglib/dist/linux -lsaplinglib -lpthread -ldl -lm" $(GOGET) -u github.com/Meshbits/khoji
-	GO111MODULE=auto CGO_ENABLED=1 GOOS=linux GOARCH=amd64 CGO_CFLAGS="-I$(HOME)/go/src/github.com/satindergrewal/saplinglib/src/" CGO_LDFLAGS="-L$(HOME)/go/src/github.com/satindergrewal/saplinglib/dist/linux -lsaplinglib -lpthread -ldl -lm" $(GOGET) -u gopkg.in/rethinkdb/rethinkdb-go.v6
-	GO111MODULE=auto CGO_ENABLED=1 GOOS=linux GOARCH=amd64 CGO_CFLAGS="-I$(HOME)/go/src/github.com/satindergrewal/saplinglib/src/" CGO_LDFLAGS="-L$(HOME)/go/src/github.com/satindergrewal/saplinglib/dist/linux -lsaplinglib -lpthread -ldl -lm" $(GOGET) -u github.com/fasthttp/router
-	GO111MODULE=auto CGO_ENABLED=1 GOOS=linux GOARCH=amd64 CGO_CFLAGS="-I$(HOME)/go/src/github.com/satindergrewal/saplinglib/src/" CGO_LDFLAGS="-L$(HOME)/go/src/github.com/satindergrewal/saplinglib/dist/linux -lsaplinglib -lpthread -ldl -lm" $(GOGET) -u github.com/valyala/fasthttp
+	$(DEPS_LINUX) $(GOGET) -u github.com/satindergrewal/kmdgo
+	$(DEPS_LINUX) $(GOGET) -u github.com/Meshbits/khoji
+	$(DEPS_LINUX) $(GOGET) -u gopkg.in/rethinkdb/rethinkdb-go.v6
+	$(DEPS_LINUX) $(GOGET) -u github.com/fasthttp/router
+	$(DEPS_LINUX) $(GOGET) -u github.com/valyala/fasthttp
 
 deps-osx:
-	GO111MODULE=auto CGO_ENABLED=1 GOOS=darwin GOARCH=amd64 CGO_CFLAGS="-I$(HOME)/go/src/github.com/satindergrewal/saplinglib/src/" CGO_LDFLAGS="-L$(HOME)/go/src/github.com/satindergrewal/saplinglib/dist/darwin -lsaplinglib -framework Security" $(GOGET) -u github.com/satindergrewal/kmdgo
-	GO111MODULE=auto CGO_ENABLED=1 GOOS=darwin GOARCH=amd64 CGO_CFLAGS="-I$(HOME)/go/src/github.com/satindergrewal/saplinglib/src/" CGO_LDFLAGS="-L$(HOME)/go/src/github.com/satindergrewal/saplinglib/dist/darwin -lsaplinglib -framework Security" $(GOGET) -u github.com/Meshbits/khoji
-	GO111MODULE=auto CGO_ENABLED=1 GOOS=darwin GOARCH=amd64 CGO_CFLAGS="-I$(HOME)/go/src/github.com/satindergrewal/saplinglib/src/" CGO_LDFLAGS="-L$(HOME)/go/src/github.com/satindergrewal/saplinglib/dist/darwin -lsaplinglib -framework Security" $(GOGET) -u gopkg.in/rethinkdb/rethinkdb-go.v6
-	GO111MODULE=auto CGO_ENABLED=1 GOOS=darwin GOARCH=amd64 CGO_CFLAGS="-I$(HOME)/go/src/github.com/satindergrewal/saplinglib/src/" CGO_LDFLAGS="-L$(HOME)/go/src/github.com/satindergrewal/saplinglib/dist/darwin -lsaplinglib -framework Security" $(GOGET) -u github.com/fasthttp/router
-	GO111MODULE=auto CGO_ENABLED=1 GOOS=darwin GOARCH=amd64 CGO_CFLAGS="-I$(HOME)/go/src/github.com/satindergrewal/saplinglib/src/" CGO_LDFLAGS="-L$(HOME)/go/src/github.com/satindergrewal/saplinglib/dist/darwin -lsaplinglib -framework Security" $(GOGET) -u github.com/valyala/fasthttp
+	$(DEPS_OSX) $(GOGET) -u github.com/satindergrewal/kmdgo
+	$(DEPS_OSX) $(GOGET) -u github.com/Meshbits/khoji
+	$(DEPS_OSX) $(GOGET) -u gopkg.in/rethinkdb/rethinkdb-go.v6
+	$(DEPS_OSX) $(GOGET) -u github.com/fasthttp/router
+	$(DEPS_OSX) $(GOGET) -u github.com/valyala/fasthttp
 
 deps-osx-arm:
-	GO111MODULE=auto CGO_ENABLED=1 GOOS=darwin GOARCH=arm64 CGO_CFLAGS="-I$(HOME)/go/src/github.com/satindergrewal/saplinglib/src/" CGO_LDFLAGS="-L$(HOME)/go/src/github.com/satindergrewal/saplinglib/dist/darwin_arm64 -lsaplinglib -framework Security" $(GOGET) -u github.com/satindergrewal/kmdgo
-	GO111MODULE=auto CGO_ENABLED=1 GOOS=darwin GOARCH=arm64 CGO_CFLAGS="-I$(HOME)/go/src/github.com/satindergrewal/saplinglib/src/" CGO_LDFLAGS="-L$(HOME)/go/src/github.com/satindergrewal/saplinglib/dist/darwin_arm64 -lsaplinglib -framework Security" $(GOGET) -u github.com/Meshbits/khoji
-	GO111MODULE=auto CGO_ENABLED=1 GOOS=darwin GOARCH=arm64 CGO_CFLAGS="-I$(HOME)/go/src/github.com/satindergrewal/saplinglib/src/" CGO_LDFLAGS="-L$(HOME)/go/src/github.com/satindergrewal/saplinglib/dist/darwin_arm64 -lsaplinglib -framework Security" $(GOGET) -u gopkg.in/rethinkdb/rethinkdb-go.v6
-	GO111MODULE=auto CGO_ENABLED=1 GOOS=darwin GOARCH=arm64 CGO_CFLAGS="-I$(HOME)/go/src/github.com/satindergrewal/saplinglib/src/" CGO_LDFLAGS="-L$(HOME)/go/src/github.com/satindergrewal/saplinglib/dist/darwin_arm64 -lsaplinglib -framework Security" $(GOGET) -u github.com/fasthttp/router
-	GO111MODULE=auto CGO_ENABLED=1 GOOS=darwin GOARCH=arm64 CGO_CFLAGS="-I$(HOME)/go/src/github.com/satindergrewal/saplinglib/src/" CGO_LDFLAGS="-L$(HOME)/go/src/github.com/satindergrewal/saplinglib/dist/darwin_arm64 -lsaplinglib -framework Security" $(GOGET) -u github.com/valyala/fasthttp
+	$(DEPS_OSX_ARM) $(GOGET) -u github.com/satindergrewal/kmdgo
+	$(DEPS_OSX_ARM) $(GOGET) -u github.com/Meshbits/khoji
+	$(DEPS_OSX_ARM) $(GOGET) -u gopkg.in/rethinkdb/rethinkdb-go.v6
+	$(DEPS_OSX_ARM) $(GOGET) -u github.com/fasthttp/router
+	$(DEPS_OSX_ARM) $(GOGET) -u github.com/valyala/fasthttp
 
 deps-win:
-	GO111MODULE=auto CGO_ENABLED=1 GOOS=windows GOARCH=amd64 CGO_CFLAGS="-I$(HOME)/go/src/github.com/satindergrewal/saplinglib/src/" CGO_LDFLAGS="-L$(HOME)/go/src/github.com/satindergrewal/saplinglib/dist/win64 -lsaplinglib -lws2_32 -luserenv" CC="x86_64-w64-mingw32-gcc" $(GOGET) -u github.com/satindergrewal/kmdgo
-	GO111MODULE=auto CGO_ENABLED=1 GOOS=windows GOARCH=amd64 CGO_CFLAGS="-I$(HOME)/go/src/github.com/satindergrewal/saplinglib/src/" CGO_LDFLAGS="-L$(HOME)/go/src/github.com/satindergrewal/saplinglib/dist/win64 -lsaplinglib -lws2_32 -luserenv" CC="x86_64-w64-mingw32-gcc" $(GOGET) -u github.com/Meshbits/khoji
-	GO111MODULE=auto CGO_ENABLED=1 GOOS=windows GOARCH=amd64 CGO_CFLAGS="-I$(HOME)/go/src/github.com/satindergrewal/saplinglib/src/" CGO_LDFLAGS="-L$(HOME)/go/src/github.com/satindergrewal/saplinglib/dist/win64 -lsaplinglib -lws2_32 -luserenv" CC="x86_64-w64-mingw32-gcc" $(GOGET) -u gopkg.in/rethinkdb/rethinkdb-go.v6
-	GO111MODULE=auto CGO_ENABLED=1 GOOS=windows GOARCH=amd64 CGO_CFLAGS="-I$(HOME)/go/src/github.com/satindergrewal/saplinglib/src/" CGO_LDFLAGS="-L$(HOME)/go/src/github.com/satindergrewal/saplinglib/dist/win64 -lsaplinglib -lws2_32 -luserenv" CC="x86_64-w64-mingw32-gcc" $(GOGET) -u github.com/fasthttp/router
-	GO111MODULE=auto CGO_ENABLED=1 GOOS=windows GOARCH=amd64 CGO_CFLAGS="-I$(HOME)/go/src/github.com/satindergrewal/saplinglib/src/" CGO_LDFLAGS="-L$(HOME)/go/src/github.com/satindergrewal/saplinglib/dist/win64 -lsaplinglib -lws2_32 -luserenv" CC="x86_64-w64-mingw32-gcc" $(GOGET) -u github.com/valyala/fasthttp
+	$(DEPS_WIN) $(GOGET) -u github.com/satindergrewal/kmdgo
+	$(DEPS_WIN) $(GOGET) -u github.com/Meshbits/khoji
+	$(DEPS_WIN) $(GOGET) -u gopkg.in/rethinkdb/rethinkdb-go.v6
+	$(DEPS_WIN) $(GOGET) -u github.com/fasthttp/router
+	$(DEPS_WIN) $(GOGET) -u github.com/valyala/fasthttp
 
 # Cross compilation
 build-linux: deps-linux
 	rm -rf $(DIST_UNIX_PATH)
 	$(GITCMD) checkout $(CHECKOUT_BRANCH)
 	$(MKDIR_P) $(DIST_UNIX_PATH)
-	GO111MODULE=auto CGO_CFLAGS="-I$(HOME)/go/src/github.com/satindergrewal/saplinglib/src/" CGO_LDFLAGS="-L$(HOME)/go/src/github.com/satindergrewal/saplinglib/dist/linux -lsaplinglib -lpthread -ldl -lm" CGO_ENABLED=1 GOOS=linux GOARCH=amd64 $(GOBUILD) -o $(DIST_UNIX_PATH)/$(BINARY_NAME) -v
+	$(DEPS_LINUX) $(GOBUILD) -o $(DIST_UNIX_PATH)/$(BINARY_NAME) -v
 	$(CP_AV) $(DIST_FILES) $(DIST_UNIX_PATH)
 	cd $(DIST_UNIX_PATH); zip -r ../$(BINARY_NAME)_linux.zip *; ls -lha ../; pwd
 	$(RM_RFV) $(DIST_UNIX_PATH)
@@ -101,7 +106,7 @@ build-linux: deps-linux
 build-osx: deps-osx
 	$(GITCMD) checkout $(CHECKOUT_BRANCH)
 	$(MKDIR_P) $(DIST_OSX_PATH)
-	GO111MODULE=auto CGO_CFLAGS="-I$(HOME)/go/src/github.com/satindergrewal/saplinglib/src/" CGO_LDFLAGS="-L$(HOME)/go/src/github.com/satindergrewal/saplinglib/dist/darwin -lsaplinglib -framework Security" CGO_ENABLED=1 GOOS=darwin GOARCH=amd64 $(GOBUILD) -o $(DIST_OSX_PATH)/$(BINARY_NAME) -v
+	$(DEPS_OSX) $(GOBUILD) -o $(DIST_OSX_PATH)/$(BINARY_NAME) -v
 	$(CP_AV) $(DIST_FILES) $(DIST_OSX_PATH)
 	cd $(DIST_OSX_PATH); zip -r ../$(BINARY_NAME)_macos.zip *
 	$(RM_RFV) $(DIST_OSX_PATH)
@@ -109,7 +114,7 @@ build-osx: deps-osx
 build-osx-arm: deps-osx-arm
 	$(GITCMD) checkout $(CHECKOUT_BRANCH)
 	$(MKDIR_P) $(DIST_OSX_ARM_PATH)
-	GO111MODULE=auto CGO_CFLAGS="-I$(HOME)/go/src/github.com/satindergrewal/saplinglib/src/" CGO_LDFLAGS="-L$(HOME)/go/src/github.com/satindergrewal/saplinglib/dist/darwin_arm64 -lsaplinglib -framework Security" CGO_ENABLED=1 GOOS=darwin GOARCH=arm64 $(GOBUILD) -o $(DIST_OSX_ARM_PATH)/$(BINARY_NAME) -v
+	$(DEPS_OSX_ARM) $(GOBUILD) -o $(DIST_OSX_ARM_PATH)/$(BINARY_NAME) -v
 	$(CP_AV) $(DIST_FILES) $(DIST_OSX_ARM_PATH)
 	cd $(DIST_OSX_ARM_PATH); zip -r ../$(BINARY_NAME)_macos_arm64.zip *
 	$(RM_RFV) $(DIST_OSX_ARM_PATH)
@@ -117,7 +122,7 @@ build-osx-arm: deps-osx-arm
 build-win:
 	$(GITCMD) checkout $(CHECKOUT_BRANCH)
 	$(MKDIR_P) $(DIST_WIN_PATH)
-	GO111MODULE=auto CGO_CFLAGS="-I$(HOME)/go/src/github.com/satindergrewal/saplinglib/src/" CGO_LDFLAGS="-L$(HOME)/go/src/github.com/satindergrewal/saplinglib/dist/win64 -lsaplinglib -lws2_32 -luserenv" CC="x86_64-w64-mingw32-gcc" CGO_ENABLED=1 GOOS=windows GOARCH=amd64 $(GOBUILD) -o $(DIST_WIN_PATH)/$(BINARY_WIN) -v
+	$(DEPS_WIN) $(GOBUILD) -o $(DIST_WIN_PATH)/$(BINARY_WIN) -v
 	$(CP_AV) $(DIST_FILES) $(DIST_WIN_PATH)
 	cd $(DIST_WIN_PATH); zip -r ../$(BINARY_NAME)_win.zip *
 	$(RM_RFV) $(DIST_WIN_PATH)
