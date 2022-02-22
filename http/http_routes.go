@@ -464,7 +464,8 @@ func getLastTransactions(ctx *fasthttp.RequestCtx) {
 	}
 }
 
-func InitRooter() *router.Router {
+func InitRooter(RethinkDb string) *router.Router {
+	rDB = RethinkDb
 	r := router.New()
 
 	r.GET("/api/network", setResponseHeader(getNetworkInfo))
