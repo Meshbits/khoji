@@ -96,7 +96,6 @@ func main() {
 	go checkIfBlocksSynced()
 
 	// fmt.Scanln()
-	http.RethinkDB = *rDBName
 	http.LaunchServer()
 }
 
