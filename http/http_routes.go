@@ -333,6 +333,9 @@ func getIdentitiesSlice(ctx *fasthttp.RequestCtx) {
 }
 
 func getNetworkInfo(ctx *fasthttp.RequestCtx) {
+	fmt.Println("---------")
+	fmt.Println("rDB", rDB)
+	fmt.Println("---------")
 	if rDB == "" {
 		fmt.Println("Please select dbname")
 		return
