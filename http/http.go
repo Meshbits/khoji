@@ -7,7 +7,7 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-func LaunchServer() {
-	router := InitRooter()
+func LaunchServer(rDB string) {
+	router := InitRooter(rDB)
 	fasthttp.ListenAndServe(":"+fmt.Sprintf("%d", 3334), router.Handler)
 }

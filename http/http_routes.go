@@ -8,7 +8,7 @@ import (
 
 	"github.com/fasthttp/router"
 	"github.com/valyala/fasthttp"
-	rdb "gopkg.in/rethinkdb/rethinkdb-go.v6"
+	r "gopkg.in/rethinkdb/rethinkdb-go.v6"
 )
 
 type respBalanceOk struct {
@@ -18,18 +18,19 @@ type respErr struct {
 	Error string `result:"error"`
 }
 
-// session for rethink db
-var session *rdb.Session
-var rDB string
 var MAX_ITEMS_PP int = 10
 
-func init() {
-	rDB = "vrsctest"
+var session *r.Session
 
+// Rethink database name
+var rDB string
+var RETHINKDB string
+
+func init() {
 	var err error
-	session, err = rdb.Connect(rdb.ConnectOpts{
-		Address: "localhost:28015",
-		// Database: rDB,
+	session, err = r.Connect(r.ConnectOpts{
+		Address:  "localhost:28015",
+		Database: RETHINKDB,
 	})
 	if err != nil {
 		fmt.Println(err)
@@ -47,15 +48,15 @@ func setResponseHeader(h fasthttp.RequestHandler) fasthttp.RequestHandler {
 
 func getAddressBalance(ctx *fasthttp.RequestCtx) {
 	address := ctx.UserValue("address").(string)
-	res1, err1 := rdb.DB(rDB).Table("accounts").Filter(map[string]interface{}{"address": address}).Map(
-		func(row rdb.Term) interface{} { return row.Field("balance") }).Run(session)
+	res1, err1 := r.DB(RETHINKDB).Table("accounts").Filter(map[string]interface{}{"address": address}).Map(
+		func(row r.Term) interface{} { return row.Field("balance") }).Run(session)
 	if err1 != nil {
 		log.Panicf("Failed to get balance info from DB: %v", err1)
 	}
 	log.Printf("query res %v", res1)
 	var row interface{}
 	err2 := res1.One(&row)
-	if err2 == rdb.ErrEmptyResult {
+	if err2 == r.ErrEmptyResult {
 		// row not found
 	}
 	if err2 != nil {
@@ -84,15 +85,15 @@ func getAddressBalance(ctx *fasthttp.RequestCtx) {
 func getAddressTransactions(ctx *fasthttp.RequestCtx) {
 	address := ctx.UserValue("address").(string)
 
-	res1, err1 := rdb.DB(rDB).Table("accounts").Filter(map[string]interface{}{"address": address}).Map(
-		func(row rdb.Term) interface{} { return row.Field("transactions") }).Run(session)
+	res1, err1 := r.DB(RETHINKDB).Table("accounts").Filter(map[string]interface{}{"address": address}).Map(
+		func(row r.Term) interface{} { return row.Field("transactions") }).Run(session)
 	if err1 != nil {
 		log.Panicf("Failed to get address transactions from DB: %v", err1)
 	}
 	log.Printf("query res %v", res1)
 	var row interface{}
 	err2 := res1.One(&row)
-	if err2 == rdb.ErrEmptyResult {
+	if err2 == r.ErrEmptyResult {
 		// row not found
 	}
 	if err2 != nil {
@@ -104,14 +105,14 @@ func getAddressTransactions(ctx *fasthttp.RequestCtx) {
 		for _, txid := range row.([]interface{}) {
 			log.Printf("txid %v", txid)
 
-			res3, err3 := rdb.DB(rDB).Table("transactions").Filter(map[string]interface{}{"hash": txid}).Run(session)
+			res3, err3 := r.DB(RETHINKDB).Table("transactions").Filter(map[string]interface{}{"hash": txid}).Run(session)
 			if err3 != nil {
 				log.Panicf("Failed to get transaction info from DB: %v", err3)
 			}
 			log.Printf("query res %v", res3)
 			var row2 []interface{}
 			err4 := res3.All(&row2)
-			if err4 == rdb.ErrEmptyResult {
+			if err4 == r.ErrEmptyResult {
 				// row not found
 			}
 			if err4 != nil {
@@ -147,14 +148,14 @@ func getBlockInfo(ctx *fasthttp.RequestCtx) {
 	height := ctx.UserValue("height").(string)
 	heightInt, _ := strconv.Atoi(height)
 
-	res1, err1 := rdb.DB(rDB).Table("blocks").Filter(map[string]interface{}{"height": heightInt}).Run(session)
+	res1, err1 := r.DB(RETHINKDB).Table("blocks").Filter(map[string]interface{}{"height": heightInt}).Run(session)
 	if err1 != nil {
 		log.Panicf("Failed to get block info from DB: %v", err1)
 	}
 	log.Printf("query res %v", res1)
 	var row []interface{}
 	err2 := res1.All(&row)
-	if err2 == rdb.ErrEmptyResult {
+	if err2 == r.ErrEmptyResult {
 		// row not found
 	}
 	if err2 != nil {
@@ -186,14 +187,14 @@ func getBlocksSlice(ctx *fasthttp.RequestCtx) {
 
 	log.Printf("get blocks from: %v to %v", pageInt*MAX_ITEMS_PP, (pageInt+1)*MAX_ITEMS_PP)
 
-	res1, err1 := rdb.DB(rDB).Table("blocks").Without("transactions", "solution").OrderBy("height").Slice(pageInt*MAX_ITEMS_PP, (pageInt+1)*MAX_ITEMS_PP).Run(session)
+	res1, err1 := r.DB(RETHINKDB).Table("blocks").Without("transactions", "solution").OrderBy("height").Slice(pageInt*MAX_ITEMS_PP, (pageInt+1)*MAX_ITEMS_PP).Run(session)
 	if err1 != nil {
 		log.Panicf("Failed to get block info from DB: %v", err1)
 	}
 	log.Printf("query res %v", res1)
 	var row []interface{}
 	err2 := res1.All(&row)
-	if err2 == rdb.ErrEmptyResult {
+	if err2 == r.ErrEmptyResult {
 		// row not found
 	}
 	if err2 != nil {
@@ -222,14 +223,14 @@ func getBlocksSlice(ctx *fasthttp.RequestCtx) {
 func getTransactionDetails(ctx *fasthttp.RequestCtx) {
 	hash := ctx.UserValue("hash").(string)
 
-	res1, err1 := rdb.DB(rDB).Table("transactions").Filter(map[string]interface{}{"hash": hash}).Run(session)
+	res1, err1 := r.DB(RETHINKDB).Table("transactions").Filter(map[string]interface{}{"hash": hash}).Run(session)
 	if err1 != nil {
 		log.Panicf("Failed to get transaction details from DB: %v", err1)
 	}
 	log.Printf("query res %v", res1)
 	var row []interface{}
 	err2 := res1.All(&row)
-	if err2 == rdb.ErrEmptyResult {
+	if err2 == r.ErrEmptyResult {
 		// row not found
 	}
 	if err2 != nil {
@@ -257,14 +258,14 @@ func getTransactionDetails(ctx *fasthttp.RequestCtx) {
 func getIdentityDetails(ctx *fasthttp.RequestCtx) {
 	hash := ctx.UserValue("hash").(string)
 
-	res1, err1 := rdb.DB(rDB).Table("identities").Filter(map[string]interface{}{"txid": hash}).Run(session)
+	res1, err1 := r.DB(RETHINKDB).Table("identities").Filter(map[string]interface{}{"txid": hash}).Run(session)
 	if err1 != nil {
 		log.Panicf("Failed to get identity details from DB: %v", err1)
 	}
 	log.Printf("query res %v", res1)
 	var row []interface{}
 	err2 := res1.All(&row)
-	if err2 == rdb.ErrEmptyResult {
+	if err2 == r.ErrEmptyResult {
 		// row not found
 	}
 	if err2 != nil {
@@ -295,14 +296,14 @@ func getIdentitiesSlice(ctx *fasthttp.RequestCtx) {
 
 	log.Printf("get identities from: %v to %v", pageInt*MAX_ITEMS_PP, (pageInt+1)*MAX_ITEMS_PP)
 
-	res1, err1 := rdb.DB(rDB).Table("identities").OrderBy("blockheight").Slice(pageInt*MAX_ITEMS_PP, (pageInt+1)*MAX_ITEMS_PP).Run(session)
+	res1, err1 := r.DB(RETHINKDB).Table("identities").OrderBy("blockheight").Slice(pageInt*MAX_ITEMS_PP, (pageInt+1)*MAX_ITEMS_PP).Run(session)
 	if err1 != nil {
 		log.Panicf("Failed to get identities info from DB: %v", err1)
 	}
 	log.Printf("query res %v", res1)
 	var row []interface{}
 	err2 := res1.All(&row)
-	if err2 == rdb.ErrEmptyResult {
+	if err2 == r.ErrEmptyResult {
 		// row not found
 	}
 	if err2 != nil {
@@ -329,14 +330,14 @@ func getIdentitiesSlice(ctx *fasthttp.RequestCtx) {
 }
 
 func getNetworkInfo(ctx *fasthttp.RequestCtx) {
-	res1, err1 := rdb.DB(rDB).Table("network").Run(session)
+	res1, err1 := r.DB(RETHINKDB).Table("network").Run(session)
 	if err1 != nil {
 		log.Panicf("Failed to get network info from DB: %v", err1)
 	}
 	log.Printf("query res %v", res1)
 	var row []interface{}
 	err2 := res1.All(&row)
-	if err2 == rdb.ErrEmptyResult {
+	if err2 == r.ErrEmptyResult {
 		// row not found
 	}
 	if err2 != nil {
@@ -367,14 +368,14 @@ func getAccountsSlice(ctx *fasthttp.RequestCtx) {
 
 	log.Printf("get accounts from: %v to %v", pageInt*MAX_ITEMS_PP, (pageInt+1)*MAX_ITEMS_PP)
 
-	res1, err1 := rdb.DB(rDB).Table("accounts").OrderBy(rdb.Desc("balance")).Without("transactions").Slice(pageInt*MAX_ITEMS_PP, (pageInt+1)*MAX_ITEMS_PP).Run(session)
+	res1, err1 := r.DB(RETHINKDB).Table("accounts").OrderBy(r.Desc("balance")).Without("transactions").Slice(pageInt*MAX_ITEMS_PP, (pageInt+1)*MAX_ITEMS_PP).Run(session)
 	if err1 != nil {
 		log.Panicf("Failed to get richlist from DB: %v", err1)
 	}
 	log.Printf("query res %v", res1)
 	var row []interface{}
 	err2 := res1.All(&row)
-	if err2 == rdb.ErrEmptyResult {
+	if err2 == r.ErrEmptyResult {
 		// row not found
 	}
 	if err2 != nil {
@@ -403,14 +404,14 @@ func getAccountsSlice(ctx *fasthttp.RequestCtx) {
 func getLastBlocks(ctx *fasthttp.RequestCtx) {
 	var pageInt = 0
 
-	res1, err1 := rdb.DB(rDB).Table("blocks").Without("transactions", "solution").OrderBy(rdb.Desc("height")).Slice(pageInt*MAX_ITEMS_PP, (pageInt+1)*MAX_ITEMS_PP).Run(session)
+	res1, err1 := r.DB(RETHINKDB).Table("blocks").Without("transactions", "solution").OrderBy(r.Desc("height")).Slice(pageInt*MAX_ITEMS_PP, (pageInt+1)*MAX_ITEMS_PP).Run(session)
 	if err1 != nil {
 		log.Panicf("Failed to get last blocks from DB: %v", err1)
 	}
 	log.Printf("query res %v", res1)
 	var row []interface{}
 	err2 := res1.All(&row)
-	if err2 == rdb.ErrEmptyResult {
+	if err2 == r.ErrEmptyResult {
 		// row not found
 	}
 	if err2 != nil {
@@ -436,14 +437,14 @@ func getLastBlocks(ctx *fasthttp.RequestCtx) {
 func getLastTransactions(ctx *fasthttp.RequestCtx) {
 	var pageInt = 0
 
-	res1, err1 := rdb.DB(rDB).Table("transactions").OrderBy(rdb.Desc("height")).Slice(pageInt*MAX_ITEMS_PP, (pageInt+1)*MAX_ITEMS_PP).Run(session)
+	res1, err1 := r.DB(RETHINKDB).Table("transactions").OrderBy(r.Desc("height")).Slice(pageInt*MAX_ITEMS_PP, (pageInt+1)*MAX_ITEMS_PP).Run(session)
 	if err1 != nil {
 		log.Panicf("Failed to get last transactions from DB: %v", err1)
 	}
 	log.Printf("query res %v", res1)
 	var row []interface{}
 	err2 := res1.All(&row)
-	if err2 == rdb.ErrEmptyResult {
+	if err2 == r.ErrEmptyResult {
 		// row not found
 	}
 	if err2 != nil {
@@ -466,7 +467,8 @@ func getLastTransactions(ctx *fasthttp.RequestCtx) {
 	}
 }
 
-func InitRooter() *router.Router {
+func InitRooter(rDB string) *router.Router {
+	RETHINKDB = rDB
 	r := router.New()
 
 	r.GET("/api/network", setResponseHeader(getNetworkInfo))

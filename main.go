@@ -96,7 +96,7 @@ func main() {
 	go checkIfBlocksSynced()
 
 	// fmt.Scanln()
-	http.LaunchServer()
+	http.LaunchServer(*rDBName)
 }
 
 func round(num float64) int {
