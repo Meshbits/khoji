@@ -466,6 +466,11 @@ func getLastTransactions(ctx *fasthttp.RequestCtx) {
 
 func InitRooter(RethinkDb string) *router.Router {
 	rDB = RethinkDb
+	fmt.Println("RethinkDb http routes", RethinkDb)
+	if rDB == "" {
+		fmt.Println("Please select Rethink database name to sync blochaain data with")
+		return nil
+	}
 	r := router.New()
 
 	r.GET("/api/network", setResponseHeader(getNetworkInfo))

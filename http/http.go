@@ -8,6 +8,7 @@ import (
 )
 
 func LaunchServer(RethinkDb string) {
+	fmt.Println("RethinkDb http", RethinkDb)
 	router := InitRooter(RethinkDb)
 	fasthttp.ListenAndServe(":"+fmt.Sprintf("%d", 3334), router.Handler)
 }
