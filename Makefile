@@ -43,16 +43,72 @@ DEPS_OSX=GO111MODULE=auto CGO_ENABLED=1 GOOS=darwin GOARCH=amd64 CGO_CFLAGS="-I$
 DEPS_OSX_ARM=GO111MODULE=auto CGO_ENABLED=1 GOOS=darwin GOARCH=arm64 CGO_CFLAGS="-I$(GOPATH)/src/github.com/satindergrewal/saplinglib/src/" CGO_LDFLAGS="-L$(GOPATH)/src/github.com/satindergrewal/saplinglib/dist/darwin_arm64 -lsaplinglib -framework Security"
 DEPS_WIN=GO111MODULE=auto CGO_ENABLED=1 GOOS=windows GOARCH=amd64 CGO_CFLAGS="-I$(GOPATH)/src/github.com/satindergrewal/saplinglib/src/" CGO_LDFLAGS="-L$(GOPATH)/src/github.com/satindergrewal/saplinglib/dist/win64 -lsaplinglib -lws2_32 -luserenv" CC="x86_64-w64-mingw32-gcc"
 
-# OS condition reference link: https://gist.github.com/sighingnow/deee806603ec9274fd47
-UNAME_S=$(shell uname -s)
+# # OS condition reference link: https://gist.github.com/sighingnow/deee806603ec9274fd47
+# UNAME_S=$(shell uname -s)
+# all:
+# 	@echo $(OSFLAG)
 
-all:
-	@echo $(OSFLAG)
+# https://gist.github.com/sighingnow/deee806603ec9274fd47
+# https://stackoverflow.com/questions/714100/os-detecting-makefile
+
+ifeq ($(OS),Windows_NT)
+    OS_ARCH += WIN32
+    ifeq ($(PROCESSOR_ARCHITEW6432),AMD64)
+        OS_ARCH += AMD64
+    else
+        ifeq ($(PROCESSOR_ARCHITECTURE),AMD64)
+            OS_ARCH += AMD64
+        endif
+        ifeq ($(PROCESSOR_ARCHITECTURE),x86)
+            OS_ARCH += IA32
+        endif
+    endif
+else
+    UNAME_S := $(shell uname -s)
+    ifeq ($(UNAME_S),Linux)
+        OS_ARCH += LINUX
+    endif
+    ifeq ($(UNAME_S),Darwin)
+        OS_ARCH += OSX
+    endif
+    UNAME_P := $(shell uname -p)
+    ifeq ($(UNAME_P),x86_64)
+        OS_ARCH += AMD64
+    endif
+    ifneq ($(filter %86,$(UNAME_P)),)
+        OS_ARCH += IA32
+    endif
+    ifneq ($(filter arm%,$(UNAME_P)),)
+        OS_ARCH += ARM
+    endif
+endif
+
+ifeq ($(OS_ARCH),LINUX AMD)
+	BUILD_KHOJI=$(DEPS_LINUX) $(GOBUILD) -o $(BINARY_NAME) -v
+endif
+ifeq ($(OS_ARCH),LINUX ARM)
+	BUILD_KHOJI=$(DEPS_LINUX) $(GOBUILD) -o $(BINARY_NAME) -v
+endif
+ifeq ($(OS_ARCH),OSX AMD)
+	BUILD_KHOJI=$(DEPS_OSX) $(GOBUILD) -o $(BINARY_NAME) -v
+endif
+ifeq ($(OS_ARCH),OSX IA32)
+	BUILD_KHOJI=$(DEPS_OSX) $(GOBUILD) -o $(BINARY_NAME) -v
+endif
+ifeq ($(OS_ARCH),OSX ARM)
+	BUILD_KHOJI=$(DEPS_OSX_ARM) $(GOBUILD) -o $(BINARY_NAME) -v
+endif
+
+# all:
+# 	@echo $(OS_ARCH)
+# 	@echo $(GOPATH)
+# 	@echo $(FINAL_CMD)
 
 all: build
 build:
-	$(GITCMD) checkout $(CHECKOUT_BRANCH)
-	$(GOBUILD) -o $(BINARY_NAME) -v
+#	$(GITCMD) checkout $(CHECKOUT_BRANCH)
+#	$(GOBUILD) -o $(BINARY_NAME) -v
+	$(BUILD_KHOJI)
 # test: 
 #	$(GOTEST) -v ./...
 clean: 
