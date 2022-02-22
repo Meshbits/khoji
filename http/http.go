@@ -1,3 +1,4 @@
+// https://github.com/fasthttp/router/tree/master/_examples/basic
 package http
 
 import (
