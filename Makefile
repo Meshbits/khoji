@@ -117,7 +117,7 @@ endif
 # 	@echo $(FINAL_CMD)
 
 all: build
-build: $(BUILD_DEPS)
+build: #$(BUILD_DEPS)
 #	$(GITCMD) checkout $(CHECKOUT_BRANCH)
 #	$(GOBUILD) -o $(BINARY_NAME) -v
 	$(BUILD_KHOJI)
