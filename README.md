@@ -312,7 +312,7 @@ Release builds can be made cross platform.
 Means you can build Mac OS build on Linux, and Linux builds on Mac OS,
 thanks to Go's cross-compilation capabilities.
 
-##### Linux build
+### Linux build
 
 To make Linux distributable build execute the following command:
 
@@ -323,7 +323,7 @@ make build-linux
 
 After this command you'll find a zipped copy of linux distributable file under `dist/dist_unix` directory in `$HOME/go/src/github.com/Meshbits/khoji/`.
 
-##### MacOS x86_64 build
+### MacOS x86_64 build
 
 To make Mac OS distributable build execute the following command:
 
@@ -334,7 +334,7 @@ make build-osx
 
 Smiliar to Linux build, for Mac OS you'll find zipped file under `dist/dist_osx` in `$HOME/go/src/github.com/Meshbits/khoji/`.
 
-##### MacOS arm64 build
+### MacOS arm64 build
 
 To make Mac OS distributable build for M1 Mac execute the following command:
 
@@ -345,7 +345,7 @@ make build-osx-arm
 
 Smiliar to MacOS x86_64 build, for MacOS arm64 you'll find zipped archive file under `dist/dist_osx_arm` in `$HOME/go/src/github.com/Meshbits/khoji/`.
 
-##### Windows build
+### Windows build
 
 To make Windows distributable build execute the following command:
 
@@ -357,7 +357,7 @@ make build-win
 You'll find the windows build files zipped `dist/dist_win`.
 
 
-##### Clean build
+### Clean build
 
 To clean all compiled files execute the following command:
 
