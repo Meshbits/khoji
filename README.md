@@ -24,16 +24,20 @@ Through my [kmdgo](https://github.com/satindergrewal/kmdgo) go package for Komod
 - [kmdgo](https://github.com/satindergrewal/kmdgo) go package
 - [saplinglib](https://github.com/satindergrewal/saplinglib) go package
 - [RethinkDB](https://github.com/rethinkdb/rethinkdb-go) go driver package
+- Git
+- Make tools (`automake`, `make` etc.)
 
 # Install instructions
 
-#### Install Go on your system
+### Install Go on your system
 
 On Ubuntu can follow this guide: https://github.com/golang/go/wiki/Ubuntu
 
 ```bash
-sudo add-apt-repository ppa:longsleep/golang-backports
 sudo apt update
+sudo apt install make git
+sudo apt-get install software-properties-common
+sudo add-apt-repository ppa:longsleep/golang-backports
 sudo apt install golang-go
 ```
 
@@ -41,13 +45,40 @@ On Mac can install Go using brew.
 
 ```bash
 brew update
-brew install go
+brew install git go
 ```
 
-#### Install RethinkDB
+### Install RethinkDB
 
 Follow RethinkDB install instructions from it's official source: https://rethinkdb.com/docs/install/
 
+## Quick install
+
+Once you are ready with the Golang installed for your OS, and RethinkDB service started, follow these steps to build `khoji`:
+
+```shell
+git clone https://github.com/meshbits/khoji.git
+cd khoji
+make
+```
+
+If successfull you will see `khoji` executable binary for your OS inside root directory of `khoji`.
+
+```shell
+$ ./khoji
+Please select Rethink database name to sync blochaain data with
+  -chain VRSC
+    	Define appname variable. The name value must be the matching value of it's data directory name. Example VerusCoin's data directory is VRSC and so on. (default "VRSC")
+  -dbname string
+    	Rethink database name
+  -setupdb string
+    	Rethink database name to create and setup with all tables required for explorer
+```
+
+
+## Advanced Installation Instructions
+
+These installation steps are described in detail what all things are required to setup Khoji properly. This method can help troubleshoot any issues you might have building and installing Khoji.
 
 ### Setup developer environment
 

@@ -81,21 +81,33 @@ else
     ifneq ($(filter arm%,$(UNAME_P)),)
         OS_ARCH += ARM
     endif
+	ifneq ($(filter aarch%,$(UNAME_P)),)
+        OS_ARCH += ARM
+    endif
 endif
 
 ifeq ($(OS_ARCH),LINUX AMD)
+	BUILD_DEPS=deps-linux
+	BUILD_KHOJI=$(DEPS_LINUX) $(GOBUILD) -o $(BINARY_NAME) -v
+endif
+ifeq ($(OS_ARCH),LINUX AMD64)
+	BUILD_DEPS=deps-linux
 	BUILD_KHOJI=$(DEPS_LINUX) $(GOBUILD) -o $(BINARY_NAME) -v
 endif
 ifeq ($(OS_ARCH),LINUX ARM)
+	BUILD_DEPS=deps-linux
 	BUILD_KHOJI=$(DEPS_LINUX) $(GOBUILD) -o $(BINARY_NAME) -v
 endif
 ifeq ($(OS_ARCH),OSX AMD)
+	BUILD_DEPS=deps-osx
 	BUILD_KHOJI=$(DEPS_OSX) $(GOBUILD) -o $(BINARY_NAME) -v
 endif
 ifeq ($(OS_ARCH),OSX IA32)
+	BUILD_DEPS=deps-osx
 	BUILD_KHOJI=$(DEPS_OSX) $(GOBUILD) -o $(BINARY_NAME) -v
 endif
 ifeq ($(OS_ARCH),OSX ARM)
+	BUILD_DEPS=deps-osx-arm
 	BUILD_KHOJI=$(DEPS_OSX_ARM) $(GOBUILD) -o $(BINARY_NAME) -v
 endif
 
@@ -105,18 +117,21 @@ endif
 # 	@echo $(FINAL_CMD)
 
 all: build
-build:
+build: $(BUILD_DEPS)
 #	$(GITCMD) checkout $(CHECKOUT_BRANCH)
 #	$(GOBUILD) -o $(BINARY_NAME) -v
 	$(BUILD_KHOJI)
-# test: 
-#	$(GOTEST) -v ./...
+	@echo $(BUILD_DEPS)
+	@echo $(BUILD_KHOJI)
+	@echo $(OS_ARCH)
+
 clean: 
 	$(GOCLEAN)
 	rm -rf $(DIST_DIR)
 	rm -f $(BINARY_NAME)
 	rm -f $(BINARY_UNIX)
 	rm -f $(BINARY_OSX)
+	rm -f khoji.log
 run:
 	$(GITCMD) checkout $(CHECKOUT_BRANCH)
 	$(GOBUILD) -o $(BINARY_NAME) -v 
