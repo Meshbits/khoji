@@ -7,8 +7,8 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-func LaunchServer(RethinkDb string) {
-	fmt.Println("RethinkDb http", RethinkDb)
-	router := InitRooter(RethinkDb)
+func LaunchServer() {
+	fmt.Println(rDB)
+	router := InitRooter(rDB)
 	fasthttp.ListenAndServe(":"+fmt.Sprintf("%d", 3334), router.Handler)
 }
