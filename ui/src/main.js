@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import App from './App.vue';
 import Main from './Main.vue';
+import BlockView from './components/BlockView.vue';
 import { BootstrapVue } from 'bootstrap-vue';
 import VueRouter from 'vue-router';
 import 'bootstrap/dist/css/bootstrap.css';

@@ -2,17 +2,24 @@
   <div>
     <img alt="Vue logo" src="./assets/logo.png" width="50px" style="margin-bottom: 40px">
     <div class="container">
+      <div class="row">
+        <div class="col-sm">
+          <BlocksTable />
+        </div>
+      </div>
       <NetworkInfoTable />
     </div>
   </div>
 </template>
 
 <script>
+import BlocksTable from './components/BlocksTable.vue'
 import NetworkInfoTable from './components/NetworkInfoTable.vue'
 
 export default {
   name: 'App',
   components: {
+    BlocksTable,
     NetworkInfoTable
   }
 }
