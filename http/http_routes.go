@@ -26,10 +26,6 @@ var session *r.Session
 var rDB string
 
 func init() {
-	if rDB == "" {
-		fmt.Println("Please select dbname")
-		return
-	}
 	var err error
 	session, err = r.Connect(r.ConnectOpts{
 		Address:  "localhost:28015",
@@ -333,13 +329,6 @@ func getIdentitiesSlice(ctx *fasthttp.RequestCtx) {
 }
 
 func getNetworkInfo(ctx *fasthttp.RequestCtx) {
-	fmt.Println("---------")
-	fmt.Println("rDB", rDB)
-	fmt.Println("---------")
-	if rDB == "" {
-		fmt.Println("Please select dbname")
-		return
-	}
 	res1, err1 := r.DB(rDB).Table("network").Run(session)
 	if err1 != nil {
 		log.Panicf("Failed to get network info from DB: %v", err1)

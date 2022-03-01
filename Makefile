@@ -123,7 +123,7 @@ build: #$(BUILD_DEPS)
 	$(BUILD_KHOJI)
 #	@echo $(BUILD_DEPS)
 #	@echo $(BUILD_KHOJI)
-#	@echo $(OS_ARCH)
+	@echo $(OS_ARCH)
 
 clean: 
 	$(GOCLEAN)
