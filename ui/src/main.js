@@ -15,7 +15,10 @@ const routes = [
   {
     path: "",
     component: Main,
-  }
+  }, {
+    path: "/block/:height",
+    component: BlockView,
+  },
 ];
 
 const router = new VueRouter({
