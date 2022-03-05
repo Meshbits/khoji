@@ -25,7 +25,6 @@ import (
 
 	"github.com/Meshbits/khoji/http"
 	"github.com/Meshbits/khoji/khojiutils"
-	"github.com/satindergrewal/kmdgo"
 	r "gopkg.in/rethinkdb/rethinkdb-go.v6"
 )
 
@@ -35,7 +34,7 @@ var session *r.Session
 // Define appName type from kmdgo package
 // Define appname variable. The name value must be the matching value of it's data directory name.
 // Example Komodo's data directory is `komodo`, VerusCoin's data directory is `VRSC` and so on.
-var appName kmdgo.AppType
+var appName khojiutils.AppType
 
 // local "bloom filter" to see only address specific balance changes
 // if left empty will print data for all addresses
@@ -64,7 +63,7 @@ func main() {
 	flag.Parse()
 	// fmt.Println("chain:", *chainName)
 	// fmt.Println("dbname:", *rDBName)
-	appName = kmdgo.AppType(*chainName)
+	appName = khojiutils.AppType(*chainName)
 	rDB = *rDBName
 
 	// if *setupDb == "" {

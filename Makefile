@@ -37,11 +37,11 @@ CURL_DL=curl -LJ
 RM_RFV=rm -rfv
 UNZIP=unzip
 TAR_GZ=tar -cvzf
-CHECKOUT_BRANCH=main
-DEPS_LINUX=GO111MODULE=auto CGO_ENABLED=1 GOOS=linux GOARCH=amd64 CGO_CFLAGS="-I$(GOPATH)/src/github.com/satindergrewal/saplinglib/src/" CGO_LDFLAGS="-L$(GOPATH)/src/github.com/satindergrewal/saplinglib/dist/linux -lsaplinglib -lpthread -ldl -lm"
-DEPS_OSX=GO111MODULE=auto CGO_ENABLED=1 GOOS=darwin GOARCH=amd64 CGO_CFLAGS="-I$(GOPATH)/src/github.com/satindergrewal/saplinglib/src/" CGO_LDFLAGS="-L$(GOPATH)/src/github.com/satindergrewal/saplinglib/dist/darwin -lsaplinglib -framework Security"
-DEPS_OSX_ARM=GO111MODULE=auto CGO_ENABLED=1 GOOS=darwin GOARCH=arm64 CGO_CFLAGS="-I$(GOPATH)/src/github.com/satindergrewal/saplinglib/src/" CGO_LDFLAGS="-L$(GOPATH)/src/github.com/satindergrewal/saplinglib/dist/darwin_arm64 -lsaplinglib -framework Security"
-DEPS_WIN=GO111MODULE=auto CGO_ENABLED=1 GOOS=windows GOARCH=amd64 CGO_CFLAGS="-I$(GOPATH)/src/github.com/satindergrewal/saplinglib/src/" CGO_LDFLAGS="-L$(GOPATH)/src/github.com/satindergrewal/saplinglib/dist/win64 -lsaplinglib -lws2_32 -luserenv" CC="x86_64-w64-mingw32-gcc"
+CHECKOUT_BRANCH=dev
+DEPS_LINUX=GOOS=linux GOARCH=amd64
+DEPS_OSX=GOOS=darwin GOARCH=amd64
+DEPS_OSX_ARM=GOOS=darwin GOARCH=arm64
+DEPS_WIN=GOOS=windows GOARCH=amd64
 
 # # OS condition reference link: https://gist.github.com/sighingnow/deee806603ec9274fd47
 # UNAME_S=$(shell uname -s)
@@ -118,12 +118,13 @@ endif
 
 all: build
 build: #$(BUILD_DEPS)
-#	$(GITCMD) checkout $(CHECKOUT_BRANCH)
-#	$(GOBUILD) -o $(BINARY_NAME) -v
-	$(BUILD_KHOJI)
+	$(GITCMD) checkout $(CHECKOUT_BRANCH)
+	go mod tidy
+	$(GOBUILD) -o $(BINARY_NAME) -v
+#	$(BUILD_KHOJI)
 #	@echo $(BUILD_DEPS)
 #	@echo $(BUILD_KHOJI)
-	@echo $(OS_ARCH)
+#	@echo $(OS_ARCH)
 
 clean: 
 	$(GOCLEAN)
@@ -136,63 +137,63 @@ run:
 	$(GITCMD) checkout $(CHECKOUT_BRANCH)
 	$(GOBUILD) -o $(BINARY_NAME) -v 
 	# ./$(BINARY_NAME) start
-deps-linux:
-	$(DEPS_LINUX) $(GOGET) -u github.com/satindergrewal/kmdgo
-	$(DEPS_LINUX) $(GOGET) -u github.com/Meshbits/khoji
-	$(DEPS_LINUX) $(GOGET) -u gopkg.in/rethinkdb/rethinkdb-go.v6
-	$(DEPS_LINUX) $(GOGET) -u github.com/fasthttp/router
-	$(DEPS_LINUX) $(GOGET) -u github.com/valyala/fasthttp
+# deps-linux:
+# 	$(DEPS_LINUX) $(GOGET) -u github.com/Meshbits/khoji
+# 	$(DEPS_LINUX) $(GOGET) -u gopkg.in/rethinkdb/rethinkdb-go.v6
+# 	$(DEPS_LINUX) $(GOGET) -u github.com/fasthttp/router
+# 	$(DEPS_LINUX) $(GOGET) -u github.com/valyala/fasthttp
 
-deps-osx:
-	$(DEPS_OSX) $(GOGET) -u github.com/satindergrewal/kmdgo
-	$(DEPS_OSX) $(GOGET) -u github.com/Meshbits/khoji
-	$(DEPS_OSX) $(GOGET) -u gopkg.in/rethinkdb/rethinkdb-go.v6
-	$(DEPS_OSX) $(GOGET) -u github.com/fasthttp/router
-	$(DEPS_OSX) $(GOGET) -u github.com/valyala/fasthttp
+# deps-osx:
+# 	$(DEPS_OSX) $(GOGET) -u github.com/Meshbits/khoji
+# 	$(DEPS_OSX) $(GOGET) -u gopkg.in/rethinkdb/rethinkdb-go.v6
+# 	$(DEPS_OSX) $(GOGET) -u github.com/fasthttp/router
+# 	$(DEPS_OSX) $(GOGET) -u github.com/valyala/fasthttp
 
-deps-osx-arm:
-	$(DEPS_OSX_ARM) $(GOGET) -u github.com/satindergrewal/kmdgo
-	$(DEPS_OSX_ARM) $(GOGET) -u github.com/Meshbits/khoji
-	$(DEPS_OSX_ARM) $(GOGET) -u gopkg.in/rethinkdb/rethinkdb-go.v6
-	$(DEPS_OSX_ARM) $(GOGET) -u github.com/fasthttp/router
-	$(DEPS_OSX_ARM) $(GOGET) -u github.com/valyala/fasthttp
+# deps-osx-arm:
+# 	$(DEPS_OSX_ARM) $(GOGET) -u github.com/Meshbits/khoji
+# 	$(DEPS_OSX_ARM) $(GOGET) -u gopkg.in/rethinkdb/rethinkdb-go.v6
+# 	$(DEPS_OSX_ARM) $(GOGET) -u github.com/fasthttp/router
+# 	$(DEPS_OSX_ARM) $(GOGET) -u github.com/valyala/fasthttp
 
-deps-win:
-	$(DEPS_WIN) $(GOGET) -u github.com/satindergrewal/kmdgo
-	$(DEPS_WIN) $(GOGET) -u github.com/Meshbits/khoji
-	$(DEPS_WIN) $(GOGET) -u gopkg.in/rethinkdb/rethinkdb-go.v6
-	$(DEPS_WIN) $(GOGET) -u github.com/fasthttp/router
-	$(DEPS_WIN) $(GOGET) -u github.com/valyala/fasthttp
+# deps-win:
+# 	$(DEPS_WIN) $(GOGET) -u github.com/Meshbits/khoji
+# 	$(DEPS_WIN) $(GOGET) -u gopkg.in/rethinkdb/rethinkdb-go.v6
+# 	$(DEPS_WIN) $(GOGET) -u github.com/fasthttp/router
+# 	$(DEPS_WIN) $(GOGET) -u github.com/valyala/fasthttp
 
 # Cross compilation
-build-linux: deps-linux
+build-linux:
 	rm -rf $(DIST_UNIX_PATH)
 	$(GITCMD) checkout $(CHECKOUT_BRANCH)
 	$(MKDIR_P) $(DIST_UNIX_PATH)
+	go mod tidy
 	$(DEPS_LINUX) $(GOBUILD) -o $(DIST_UNIX_PATH)/$(BINARY_NAME) -v
 	$(CP_AV) $(DIST_FILES) $(DIST_UNIX_PATH)
 	cd $(DIST_UNIX_PATH); zip -r ../$(BINARY_NAME)_linux.zip *; ls -lha ../; pwd
 	$(RM_RFV) $(DIST_UNIX_PATH)
 	cd $(ROOT_DIR)
-build-osx: deps-osx
+build-osx:
 	$(GITCMD) checkout $(CHECKOUT_BRANCH)
 	$(MKDIR_P) $(DIST_OSX_PATH)
+	go mod tidy
 	$(DEPS_OSX) $(GOBUILD) -o $(DIST_OSX_PATH)/$(BINARY_NAME) -v
 	$(CP_AV) $(DIST_FILES) $(DIST_OSX_PATH)
 	cd $(DIST_OSX_PATH); zip -r ../$(BINARY_NAME)_macos.zip *
 	$(RM_RFV) $(DIST_OSX_PATH)
 	cd $(ROOT_DIR)
-build-osx-arm: deps-osx-arm
+build-osx-arm:
 	$(GITCMD) checkout $(CHECKOUT_BRANCH)
 	$(MKDIR_P) $(DIST_OSX_ARM_PATH)
+	go mod tidy
 	$(DEPS_OSX_ARM) $(GOBUILD) -o $(DIST_OSX_ARM_PATH)/$(BINARY_NAME) -v
 	$(CP_AV) $(DIST_FILES) $(DIST_OSX_ARM_PATH)
 	cd $(DIST_OSX_ARM_PATH); zip -r ../$(BINARY_NAME)_macos_arm64.zip *
 	$(RM_RFV) $(DIST_OSX_ARM_PATH)
 	cd $(ROOT_DIR)
-build-win: deps-win
+build-win:
 	$(GITCMD) checkout $(CHECKOUT_BRANCH)
 	$(MKDIR_P) $(DIST_WIN_PATH)
+	go mod tidy
 	$(DEPS_WIN) $(GOBUILD) -o $(DIST_WIN_PATH)/$(BINARY_WIN) -v
 	$(CP_AV) $(DIST_FILES) $(DIST_WIN_PATH)
 	cd $(DIST_WIN_PATH); zip -r ../$(BINARY_NAME)_win.zip *
