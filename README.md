@@ -8,7 +8,7 @@ Back in 2017-2018, lustro hosted explorer for Komodo blockchain under domain htt
 
 I guess since nobody at that moment had required skillset to set this up for Komodo, and the team was already busy with existing work load it sat in our archives until recently. Over these years, I learned and practiced a bit on Go language and recently explored it's codebase, and made few changes to it to make it work.
 
-So, the code in `syncblocks.go` is mostly from the original zcha.in explorer's files, with comments added to the code everywhere possible for whatever I could understand in the code, along with the variable and function name changes through out the file. I changed some parts of checking the new blocks adding to the local blockchain and triggiering the sync function of that data with RethinkDB database.
+So, the code in `main.go` is mostly from the original zcha.in explorer's files, with comments added to the code everywhere possible for whatever I could understand in the code, along with the variable and function name changes through out the file. I changed some parts of checking the new blocks adding to the local blockchain and triggiering the sync function of that data with RethinkDB database.
 
 Through my [kmdgo](https://github.com/satindergrewal/kmdgo) go package for Komodo Platform toolset I also added the ability to specify Komodo and it's ecosystem smartchains right at the command line parameters, and not needing to edit or supply any RPC information inside block explorer's code.
 
