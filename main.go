@@ -119,29 +119,29 @@ func networkInfoDB() {
 	for {
 		// Collect getinfo information
 		_info, _ := appName.RPCResultMap("getinfo", []interface{}{})
-		fmt.Println("_info", _info)
+		// fmt.Println("_info", _info)
 		info := _info.(map[string]interface{})
-		fmt.Println("info", info)
+		// fmt.Println("info", info)
 
 		// Collect block hash of latest known block number
 		blockHash, _ := appName.RPCResultMap("getblockhash", []interface{}{info["blocks"]})
-		fmt.Printf("Block Hash of %v: %v\n", info["blocks"], blockHash)
+		// fmt.Printf("Block Hash of %v: %v\n", info["blocks"], blockHash)
 
 		// Collect network information
 		_netInfo, _ := appName.RPCResultMap("getnetworkinfo", []interface{}{})
-		fmt.Println("_netInfo ", _netInfo)
+		// fmt.Println("_netInfo ", _netInfo)
 		netInfo := _netInfo.(map[string]interface{})
-		fmt.Println("Network Info: ", netInfo)
+		// fmt.Println("Network Info: ", netInfo)
 
 		// Collect network hashes per second data
 		netHashPs, _ := appName.RPCResultMap("getnetworkhashps", []interface{}{120, -1})
-		fmt.Println("Network Hash: ", netHashPs)
+		// fmt.Println("Network Hash: ", netHashPs)
 
 		// Get information on total coinsupply and total funds residing in shielded info
 		_supply, _ := appName.RPCResultMap("coinsupply", []interface{}{})
-		fmt.Println("_supply", _supply)
+		// fmt.Println("_supply", _supply)
 		supply := _supply.(map[string]interface{})
-		fmt.Println("supply", supply)
+		// fmt.Println("supply", supply)
 
 		netInfoDB := map[string]interface{}{
 			"blockHash":            blockHash,
@@ -883,6 +883,7 @@ func insertTxDB(txIndex int, txidData interface{}, block map[string]interface{})
 			// and get "transaction amount" and "sent from" address details from that output, along with the whole vout
 			// to pass to next section of code to process that for calculating balances for accounts/addresses
 			_rawtx, _ := appName.RPCResultMap("getrawtransaction", []interface{}{vInObj["txid"], 1})
+			// fmt.Println(_rawtx)
 			rawtx := _rawtx.(map[string]interface{})
 			rawTxvOutData := rawtx["vout"].([]interface{})
 			if rawtx == nil || rawtx["vout"] == nil {
