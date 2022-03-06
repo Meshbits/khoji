@@ -101,8 +101,8 @@ func (appName AppType) APICall(q *APIQuery) string {
 		rpcport = os.Getenv(string(appName) + "_RPCPORT")
 	}
 
-	fmt.Printf(" %s\n %s\n %s\n %s\n", rpcurl, rpcuser, rpcpass, rpcport)
-	fmt.Printf(" %T\n %T\n %T\n %T\n", rpcurl, rpcuser, rpcpass, rpcport)
+	// fmt.Printf(" %s\n %s\n %s\n %s\n", rpcurl, rpcuser, rpcpass, rpcport)
+	// fmt.Printf(" %T\n %T\n %T\n %T\n", rpcurl, rpcuser, rpcpass, rpcport)
 
 	if rpcuser == "" && rpcpass == "" && rpcport == "" {
 		// fmt.Println("EMPTY RPC INFO!")
