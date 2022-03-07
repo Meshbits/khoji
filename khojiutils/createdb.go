@@ -16,6 +16,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"os"
 
 	r "gopkg.in/rethinkdb/rethinkdb-go.v6"
 )
@@ -23,12 +24,12 @@ import (
 var session *r.Session
 
 // Rethink database name
-var rDB string
+var rDB string = os.Getenv("RDB_DB")
 
 func init() {
 	var err error
 	session, err = r.Connect(r.ConnectOpts{
-		Address:  "localhost:28015",
+		Address:  os.Getenv("RDB_ADDR") + ":" + os.Getenv("RDB_PORT"),
 		Database: rDB,
 	})
 	if err != nil {
@@ -37,13 +38,13 @@ func init() {
 	}
 }
 
-func CreateDb(dnname string) {
+func CreateDb(dbname string) {
 
 	// rDBName := flag.String("dbname", "", "Rethink database name")
 	// flag.Parse()
 	// fmt.Println("dbname:", *rDBName)
 	// rDB = *rDBName
-	rDB = dnname
+	rDB = dbname
 
 	if rDB == "" {
 		fmt.Println("Please select dbname")

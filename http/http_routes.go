@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"os"
 	"strconv"
 
 	"github.com/fasthttp/router"
@@ -23,13 +24,13 @@ var MAX_ITEMS_PP int = 10
 var session *r.Session
 
 // Rethink database name
-var rDB string
+var rDB string = os.Getenv("RDB_DB")
 
 func init() {
 	var err error
 	session, err = r.Connect(r.ConnectOpts{
-		Address:  "localhost:28015",
-		Database: rDB,
+		Address: os.Getenv("RDB_ADDR") + ":" + os.Getenv("RDB_PORT"),
+		// Database: rDB,
 	})
 	if err != nil {
 		fmt.Println(err)
@@ -52,7 +53,7 @@ func getAddressBalance(ctx *fasthttp.RequestCtx) {
 	if err1 != nil {
 		log.Panicf("Failed to get balance info from DB: %v", err1)
 	}
-	log.Printf("query res %v", res1)
+	// log.Printf("query res %v", res1)
 	var row interface{}
 	err2 := res1.One(&row)
 	if err2 == r.ErrEmptyResult {
@@ -89,7 +90,7 @@ func getAddressTransactions(ctx *fasthttp.RequestCtx) {
 	if err1 != nil {
 		log.Panicf("Failed to get address transactions from DB: %v", err1)
 	}
-	log.Printf("query res %v", res1)
+	// log.Printf("query res %v", res1)
 	var row interface{}
 	err2 := res1.One(&row)
 	if err2 == r.ErrEmptyResult {
@@ -151,7 +152,7 @@ func getBlockInfo(ctx *fasthttp.RequestCtx) {
 	if err1 != nil {
 		log.Panicf("Failed to get block info from DB: %v", err1)
 	}
-	log.Printf("query res %v", res1)
+	// log.Printf("query res %v", res1)
 	var row []interface{}
 	err2 := res1.All(&row)
 	if err2 == r.ErrEmptyResult {
@@ -190,7 +191,7 @@ func getBlocksSlice(ctx *fasthttp.RequestCtx) {
 	if err1 != nil {
 		log.Panicf("Failed to get block info from DB: %v", err1)
 	}
-	log.Printf("query res %v", res1)
+	// log.Printf("query res %v", res1)
 	var row []interface{}
 	err2 := res1.All(&row)
 	if err2 == r.ErrEmptyResult {
@@ -226,7 +227,7 @@ func getTransactionDetails(ctx *fasthttp.RequestCtx) {
 	if err1 != nil {
 		log.Panicf("Failed to get transaction details from DB: %v", err1)
 	}
-	log.Printf("query res %v", res1)
+	// log.Printf("query res %v", res1)
 	var row []interface{}
 	err2 := res1.All(&row)
 	if err2 == r.ErrEmptyResult {
@@ -261,7 +262,7 @@ func getIdentityDetails(ctx *fasthttp.RequestCtx) {
 	if err1 != nil {
 		log.Panicf("Failed to get identity details from DB: %v", err1)
 	}
-	log.Printf("query res %v", res1)
+	// log.Printf("query res %v", res1)
 	var row []interface{}
 	err2 := res1.All(&row)
 	if err2 == r.ErrEmptyResult {
@@ -299,7 +300,7 @@ func getIdentitiesSlice(ctx *fasthttp.RequestCtx) {
 	if err1 != nil {
 		log.Panicf("Failed to get identities info from DB: %v", err1)
 	}
-	log.Printf("query res %v", res1)
+	// log.Printf("query res %v", res1)
 	var row []interface{}
 	err2 := res1.All(&row)
 	if err2 == r.ErrEmptyResult {
@@ -333,7 +334,7 @@ func getNetworkInfo(ctx *fasthttp.RequestCtx) {
 	if err1 != nil {
 		log.Panicf("Failed to get network info from DB: %v", err1)
 	}
-	log.Printf("query res %v", res1)
+	// log.Printf("query res %v", res1)
 	var row []interface{}
 	err2 := res1.All(&row)
 	if err2 == r.ErrEmptyResult {
@@ -371,7 +372,7 @@ func getAccountsSlice(ctx *fasthttp.RequestCtx) {
 	if err1 != nil {
 		log.Panicf("Failed to get richlist from DB: %v", err1)
 	}
-	log.Printf("query res %v", res1)
+	// log.Printf("query res %v", res1)
 	var row []interface{}
 	err2 := res1.All(&row)
 	if err2 == r.ErrEmptyResult {
@@ -407,7 +408,7 @@ func getLastBlocks(ctx *fasthttp.RequestCtx) {
 	if err1 != nil {
 		log.Panicf("Failed to get last blocks from DB: %v", err1)
 	}
-	log.Printf("query res %v", res1)
+	// log.Printf("query res %v", res1)
 	var row []interface{}
 	err2 := res1.All(&row)
 	if err2 == r.ErrEmptyResult {
@@ -440,7 +441,7 @@ func getLastTransactions(ctx *fasthttp.RequestCtx) {
 	if err1 != nil {
 		log.Panicf("Failed to get last transactions from DB: %v", err1)
 	}
-	log.Printf("query res %v", res1)
+	// log.Printf("query res %v", res1)
 	var row []interface{}
 	err2 := res1.All(&row)
 	if err2 == r.ErrEmptyResult {
@@ -466,7 +467,7 @@ func getLastTransactions(ctx *fasthttp.RequestCtx) {
 	}
 }
 
-func InitRooter(rDB string) *router.Router {
+func InitRooter() *router.Router {
 	r := router.New()
 
 	r.GET("/api/network", setResponseHeader(getNetworkInfo))

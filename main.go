@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"os"
 	"strconv"
 	"time"
 
@@ -41,12 +42,12 @@ var appName khojiutils.AppType
 var addressToCheck = ""
 
 // Rethink database name
-var rDB string
+var rDB string = os.Getenv("RDB_DB")
 
 func init() {
 	var err error
 	session, err = r.Connect(r.ConnectOpts{
-		Address: "localhost:28015",
+		Address: os.Getenv("RDB_ADDR") + ":" + os.Getenv("RDB_PORT"),
 		// Database: rDB,
 	})
 	if err != nil {
@@ -57,14 +58,14 @@ func init() {
 
 func main() {
 
-	setupDb := flag.String("setupdb", "", "Rethink database name to create and setup with all tables required for explorer")
+	// setupDb := flag.String("setupdb", "", "Rethink database name to create and setup with all tables required for explorer")
 	chainName := flag.String("chain", "VRSC", "Define appname variable. The name value must be the matching value of it's data directory name. Example VerusCoin's data directory is `VRSC` and so on.")
-	rDBName := flag.String("dbname", "", "Rethink database name")
+	// rDBName := flag.String("dbname", "", "Rethink database name")
 	flag.Parse()
 	// fmt.Println("chain:", *chainName)
 	// fmt.Println("dbname:", *rDBName)
 	appName = khojiutils.AppType(*chainName)
-	rDB = *rDBName
+	// rDB = *rDBName
 
 	// if *setupDb == "" {
 	// 	fmt.Println("Please select Rethink database name to setup")
@@ -72,17 +73,23 @@ func main() {
 	// 	return
 	// }
 
-	if *setupDb != "" {
-		fmt.Println("setupDb = ", *setupDb)
-		khojiutils.CreateDb(*setupDb)
-		return
-	}
-
-	if rDB == "" {
-		fmt.Println("Please select Rethink database name to sync blochaain data with")
+	if *chainName == "" {
+		fmt.Println("Please select chain name to sync explorer data with blockchain")
 		flag.PrintDefaults()
 		return
 	}
+
+	// if *setupDb != "" {
+	// 	fmt.Println("setupDb = ", *setupDb)
+	// 	khojiutils.CreateDb(*setupDb)
+	// 	return
+	// }
+
+	// if rDB == "" {
+	// 	fmt.Println("Please select Rethink database name to sync blochaain data with")
+	// 	flag.PrintDefaults()
+	// 	return
+	// }
 
 	// Insert blank lines before starting next log
 	khojiutils.Log.Printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
@@ -95,7 +102,7 @@ func main() {
 	go checkIfBlocksSynced()
 
 	// fmt.Scanln()
-	http.LaunchServer(*rDBName)
+	http.LaunchServer()
 }
 
 func round(num float64) int {
