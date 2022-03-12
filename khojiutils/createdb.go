@@ -16,7 +16,9 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"os"
 
+	"gopkg.in/ini.v1"
 	r "gopkg.in/rethinkdb/rethinkdb-go.v6"
 )
 
@@ -26,24 +28,35 @@ var session *r.Session
 var rDB string
 
 func init() {
+	// fmt.Println("createdb")
+
 	var err error
+	cfg, err := ini.Load("config.ini")
+	if err != nil {
+		fmt.Printf("Fail to read file: %v", err)
+		os.Exit(1)
+	}
+	// rDB = os.Getenv("RDB_DB")
+	rDB = cfg.Section("DATABASE").Key("RDB_DB").String()
 	session, err = r.Connect(r.ConnectOpts{
-		Address:  "localhost:28015",
+		Address:  cfg.Section("DATABASE").Key("RDB_IP").String() + ":" + cfg.Section("DATABASE").Key("RDB_PORT").String(),
 		Database: rDB,
 	})
 	if err != nil {
-		fmt.Println(err)
+		fmt.Printf("ERROR: There is issue connecting with the database.\nPlease make sure databse is accessible to Khoji by making sure settings in\nconfig.ini are setup properly and the database server is up and running.\n\n")
+		fmt.Println("ERROR DETAILS:", err)
+		os.Exit(5)
 		return
 	}
 }
 
-func CreateDb(dnname string) {
+func CreateDb(dbname string) {
 
 	// rDBName := flag.String("dbname", "", "Rethink database name")
 	// flag.Parse()
 	// fmt.Println("dbname:", *rDBName)
 	// rDB = *rDBName
-	rDB = dnname
+	rDB = dbname
 
 	if rDB == "" {
 		fmt.Println("Please select dbname")

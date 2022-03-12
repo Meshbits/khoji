@@ -5,6 +5,7 @@ go 1.17
 require (
 	github.com/fasthttp/router v1.4.6
 	github.com/valyala/fasthttp v1.33.0
+	gopkg.in/ini.v1 v1.66.4
 	gopkg.in/rethinkdb/rethinkdb-go.v6 v6.2.1
 )
 

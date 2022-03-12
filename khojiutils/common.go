@@ -134,7 +134,7 @@ func (appName AppType) APICall(q *APIQuery) string {
 	// }
 
 	if err != nil {
-		log.Println(resp)
+		// log.Println("resp:", resp)
 		// log.Fatalf("==> Error reading API response body for - %v: %v", appName, err)
 
 		// Check if the error is "connection refused", means if the daemon is running or not running or inaccessible due to any X reason.
@@ -210,11 +210,20 @@ func (appName AppType) RPCResultMap(method string, params interface{}) (interfac
 		fmt.Println("EMPTY RPC INFO")
 		return nil, errors.New("EMPTY RPC INFO")
 	}
-	// fmt.Printf("%v\n", getJSON)
+	// fmt.Printf("getJSON - %v\n", getJSON)
 
 	var result map[string]interface{}
 	json.Unmarshal([]byte(getJSON), &result)
+	// fmt.Println(result["error"])
 	if result["error"] != nil {
+		if result["error"].(map[string]interface{})["message"].(string) == "connection refused" {
+			fmt.Println("ERROR: connection refused. Khoji is unable to connect to the blockchain API.\nPlease check:\n- The blockchain daemon is runnning and it is configured to accept API connections from external programs.\n- Make sure config.ini file of Khoji explorer is configured properly if using remote blockchain node instead of local blockchain API.")
+			os.Exit(1)
+		}
+		if result["error"].(map[string]interface{})["message"].(string) == "Loading block index..." {
+			fmt.Println("ERROR: Loading block index... Looks like the blockchain daemon is still loading.\nPlease wait for it to load completely and be ready to accept connections from external programs\nand try executing Khoji to connect with it again in a momnent.")
+			os.Exit(1)
+		}
 		// fmt.Printf("%v\n", result["error"].(map[string]interface{})["message"])
 		return nil, errors.New(result["error"].(map[string]interface{})["message"].(string))
 	}

@@ -4,10 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"os"
 	"strconv"
 
 	"github.com/fasthttp/router"
 	"github.com/valyala/fasthttp"
+	"gopkg.in/ini.v1"
 	r "gopkg.in/rethinkdb/rethinkdb-go.v6"
 )
 
@@ -26,13 +28,24 @@ var session *r.Session
 var rDB string
 
 func init() {
+	// fmt.Println("http_routes")
+
 	var err error
+	cfg, err := ini.Load("config.ini")
+	if err != nil {
+		fmt.Printf("Fail to read file: %v", err)
+		os.Exit(1)
+	}
+	// rDB = os.Getenv("RDB_DB")
+	rDB = cfg.Section("DATABASE").Key("RDB_DB").String()
 	session, err = r.Connect(r.ConnectOpts{
-		Address:  "localhost:28015",
-		Database: rDB,
+		Address: cfg.Section("DATABASE").Key("RDB_IP").String() + ":" + cfg.Section("DATABASE").Key("RDB_PORT").String(),
+		// Database: rDB,
 	})
 	if err != nil {
-		fmt.Println(err)
+		fmt.Printf("ERROR: There is issue connecting with the database.\nPlease make sure databse is accessible to Khoji by making sure settings in\nconfig.ini are setup properly and the database server is up and running.\n\n")
+		fmt.Println("ERROR DETAILS:", err)
+		os.Exit(5)
 		return
 	}
 }
@@ -52,7 +65,7 @@ func getAddressBalance(ctx *fasthttp.RequestCtx) {
 	if err1 != nil {
 		log.Panicf("Failed to get balance info from DB: %v", err1)
 	}
-	log.Printf("query res %v", res1)
+	// log.Printf("query res %v", res1)
 	var row interface{}
 	err2 := res1.One(&row)
 	if err2 == r.ErrEmptyResult {
@@ -89,7 +102,7 @@ func getAddressTransactions(ctx *fasthttp.RequestCtx) {
 	if err1 != nil {
 		log.Panicf("Failed to get address transactions from DB: %v", err1)
 	}
-	log.Printf("query res %v", res1)
+	// log.Printf("query res %v", res1)
 	var row interface{}
 	err2 := res1.One(&row)
 	if err2 == r.ErrEmptyResult {
@@ -151,7 +164,7 @@ func getBlockInfo(ctx *fasthttp.RequestCtx) {
 	if err1 != nil {
 		log.Panicf("Failed to get block info from DB: %v", err1)
 	}
-	log.Printf("query res %v", res1)
+	// log.Printf("query res %v", res1)
 	var row []interface{}
 	err2 := res1.All(&row)
 	if err2 == r.ErrEmptyResult {
@@ -190,7 +203,7 @@ func getBlocksSlice(ctx *fasthttp.RequestCtx) {
 	if err1 != nil {
 		log.Panicf("Failed to get block info from DB: %v", err1)
 	}
-	log.Printf("query res %v", res1)
+	// log.Printf("query res %v", res1)
 	var row []interface{}
 	err2 := res1.All(&row)
 	if err2 == r.ErrEmptyResult {
@@ -226,7 +239,7 @@ func getTransactionDetails(ctx *fasthttp.RequestCtx) {
 	if err1 != nil {
 		log.Panicf("Failed to get transaction details from DB: %v", err1)
 	}
-	log.Printf("query res %v", res1)
+	// log.Printf("query res %v", res1)
 	var row []interface{}
 	err2 := res1.All(&row)
 	if err2 == r.ErrEmptyResult {
@@ -261,7 +274,7 @@ func getIdentityDetails(ctx *fasthttp.RequestCtx) {
 	if err1 != nil {
 		log.Panicf("Failed to get identity details from DB: %v", err1)
 	}
-	log.Printf("query res %v", res1)
+	// log.Printf("query res %v", res1)
 	var row []interface{}
 	err2 := res1.All(&row)
 	if err2 == r.ErrEmptyResult {
@@ -299,7 +312,7 @@ func getIdentitiesSlice(ctx *fasthttp.RequestCtx) {
 	if err1 != nil {
 		log.Panicf("Failed to get identities info from DB: %v", err1)
 	}
-	log.Printf("query res %v", res1)
+	// log.Printf("query res %v", res1)
 	var row []interface{}
 	err2 := res1.All(&row)
 	if err2 == r.ErrEmptyResult {
@@ -333,7 +346,7 @@ func getNetworkInfo(ctx *fasthttp.RequestCtx) {
 	if err1 != nil {
 		log.Panicf("Failed to get network info from DB: %v", err1)
 	}
-	log.Printf("query res %v", res1)
+	// log.Printf("query res %v", res1)
 	var row []interface{}
 	err2 := res1.All(&row)
 	if err2 == r.ErrEmptyResult {
@@ -371,7 +384,7 @@ func getAccountsSlice(ctx *fasthttp.RequestCtx) {
 	if err1 != nil {
 		log.Panicf("Failed to get richlist from DB: %v", err1)
 	}
-	log.Printf("query res %v", res1)
+	// log.Printf("query res %v", res1)
 	var row []interface{}
 	err2 := res1.All(&row)
 	if err2 == r.ErrEmptyResult {
@@ -407,7 +420,7 @@ func getLastBlocks(ctx *fasthttp.RequestCtx) {
 	if err1 != nil {
 		log.Panicf("Failed to get last blocks from DB: %v", err1)
 	}
-	log.Printf("query res %v", res1)
+	// log.Printf("query res %v", res1)
 	var row []interface{}
 	err2 := res1.All(&row)
 	if err2 == r.ErrEmptyResult {
@@ -440,7 +453,7 @@ func getLastTransactions(ctx *fasthttp.RequestCtx) {
 	if err1 != nil {
 		log.Panicf("Failed to get last transactions from DB: %v", err1)
 	}
-	log.Printf("query res %v", res1)
+	// log.Printf("query res %v", res1)
 	var row []interface{}
 	err2 := res1.All(&row)
 	if err2 == r.ErrEmptyResult {
@@ -466,7 +479,7 @@ func getLastTransactions(ctx *fasthttp.RequestCtx) {
 	}
 }
 
-func InitRooter(rDB string) *router.Router {
+func InitRooter() *router.Router {
 	r := router.New()
 
 	r.GET("/api/network", setResponseHeader(getNetworkInfo))
