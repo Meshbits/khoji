@@ -1,0 +1,22 @@
+[BLOCKCHAIN]
+
+### Define chain name and it's RPC API details. The name value must be the matching value of it's data directory name.
+### Example VerusCoin's Test Network's data directory is `VRSCTEST` and so on.
+CHAIN_NAME = VRSCTEST
+
+### If you are using remote node for blockchain, then please speciffy it's RPC details
+### Make sure to uncomment by removing ; from the variables to enable these settings
+###
+### Example if you are using remote blockchain API from IP 192.168.1.100 then use that IP for RPC_IP
+; RPC_IP = "127.0.0.1"
+
+### Use RPC API access details from config file from the remote blockchain node
+; RPC_USER = "CHANGE RPC USER HERE"
+; RPC_PASS = "CHANGE RPC PASSWORD HERE"
+; RPC_PORT = "CHANGE RPC PORT HERE"
+
+[DATABASE]
+### Rethink database name to create and setup with all tables required for explorer
+RDB_DB = vrsctest
+RDB_IP = 127.0.0.1
+RDB_PORT = 28015

@@ -18,22 +18,34 @@ import (
 	"fmt"
 	"os"
 
+	"gopkg.in/ini.v1"
 	r "gopkg.in/rethinkdb/rethinkdb-go.v6"
 )
 
 var session *r.Session
 
 // Rethink database name
-var rDB string = os.Getenv("RDB_DB")
+var rDB string
 
 func init() {
+	// fmt.Println("createdb")
+
 	var err error
+	cfg, err := ini.Load("config.ini")
+	if err != nil {
+		fmt.Printf("Fail to read file: %v", err)
+		os.Exit(1)
+	}
+	// rDB = os.Getenv("RDB_DB")
+	rDB = cfg.Section("DATABASE").Key("RDB_DB").String()
 	session, err = r.Connect(r.ConnectOpts{
-		Address:  os.Getenv("RDB_ADDR") + ":" + os.Getenv("RDB_PORT"),
+		Address:  cfg.Section("DATABASE").Key("RDB_IP").String() + ":" + cfg.Section("DATABASE").Key("RDB_PORT").String(),
 		Database: rDB,
 	})
 	if err != nil {
-		fmt.Println(err)
+		fmt.Printf("ERROR: There is issue connecting with the database.\nPlease make sure databse is accessible to Khoji by making sure settings in\nconfig.ini are setup properly and the database server is up and running.\n\n")
+		fmt.Println("ERROR DETAILS:", err)
+		os.Exit(5)
 		return
 	}
 }

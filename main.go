@@ -26,6 +26,7 @@ import (
 
 	"github.com/Meshbits/khoji/http"
 	"github.com/Meshbits/khoji/khojiutils"
+	"gopkg.in/ini.v1"
 	r "gopkg.in/rethinkdb/rethinkdb-go.v6"
 )
 
@@ -42,48 +43,82 @@ var appName khojiutils.AppType
 var addressToCheck = ""
 
 // Rethink database name
-var rDB string = os.Getenv("RDB_DB")
+var rDB string
+
+// Blockchain
+var ChainName string
 
 func init() {
+	// fmt.Println("main")
+
 	var err error
+	cfg, err := ini.Load("config.ini")
+
+	ChainName = cfg.Section("BLOCKCHAIN").Key("CHAIN_NAME").String()
+	has_rpc_ip := cfg.Section("BLOCKCHAIN").HasKey("RPC_IP")
+	// fmt.Println("has_rpc_ip:", has_rpc_ip)
+	// Check if using OS environment variables to connect with blockchain daemon from remote node
+	_, has_os_rpcurl_env_var := os.LookupEnv(ChainName + "_RPCURL")
+	if has_rpc_ip {
+		// fmt.Println(ChainName+"_RPCURL", `http://`+cfg.Section("BLOCKCHAIN").Key("RPC_IP").String()+`:`)
+		os.Setenv(ChainName+"_RPCURL", `http://`+cfg.Section("BLOCKCHAIN").Key("RPC_IP").String()+`:`)
+		os.Setenv(ChainName+"_RPCUSER", cfg.Section("BLOCKCHAIN").Key("RPC_USER").String())
+		os.Setenv(ChainName+"_RPCPASS", cfg.Section("BLOCKCHAIN").Key("RPC_PASS").String())
+		os.Setenv(ChainName+"_RPCPORT", cfg.Section("BLOCKCHAIN").Key("RPC_PORT").String())
+		fmt.Printf("Using blockchain API details from config.ini to sync with %v from %v%v.\n", ChainName, `http://`+cfg.Section("BLOCKCHAIN").Key("RPC_IP").String()+`:`, cfg.Section("BLOCKCHAIN").Key("RPC_PORT").String())
+
+	} else if has_os_rpcurl_env_var {
+		fmt.Printf("Using blockchain API details from OS environment variables to sync with %v from %v%v.\n", ChainName, os.Getenv(string(ChainName)+"_RPCURL"), os.Getenv(string(ChainName)+"_RPCPORT"))
+	} else {
+		fmt.Printf("Using local blockchain API to sync with %v.\n", ChainName)
+	}
+
+	if err != nil {
+		fmt.Printf("Fail to read file: %v", err)
+		os.Exit(1)
+	}
+	// rDB = os.Getenv("RDB_DB")
+	rDB = cfg.Section("DATABASE").Key("RDB_DB").String()
 	session, err = r.Connect(r.ConnectOpts{
-		Address: os.Getenv("RDB_ADDR") + ":" + os.Getenv("RDB_PORT"),
+		Address: cfg.Section("DATABASE").Key("RDB_IP").String() + ":" + cfg.Section("DATABASE").Key("RDB_PORT").String(),
 		// Database: rDB,
 	})
 	if err != nil {
-		fmt.Println(err)
+		fmt.Printf("ERROR: There is issue connecting with the database.\nPlease make sure databse is accessible to Khoji by making sure settings in\nconfig.ini are setup properly and the database server is up and running.\n\n")
+		fmt.Println("ERROR DETAILS:", err)
+		os.Exit(5)
 		return
 	}
 }
 
 func main() {
 
-	// setupDb := flag.String("setupdb", "", "Rethink database name to create and setup with all tables required for explorer")
-	chainName := flag.String("chain", "VRSC", "Define appname variable. The name value must be the matching value of it's data directory name. Example VerusCoin's data directory is `VRSC` and so on.")
+	setupDb := flag.String("setupdb", "", "Rethink database name to create and setup with all tables required for explorer")
+	// chainName := flag.String("chain", "VRSC", "Define appname variable. The name value must be the matching value of it's data directory name. Example VerusCoin's data directory is `VRSC` and so on.")
 	// rDBName := flag.String("dbname", "", "Rethink database name")
 	flag.Parse()
 	// fmt.Println("chain:", *chainName)
 	// fmt.Println("dbname:", *rDBName)
-	appName = khojiutils.AppType(*chainName)
+	appName = khojiutils.AppType(ChainName)
 	// rDB = *rDBName
 
-	// if *setupDb == "" {
-	// 	fmt.Println("Please select Rethink database name to setup")
-	// 	flag.PrintDefaults()
-	// 	return
-	// }
-
-	if *chainName == "" {
-		fmt.Println("Please select chain name to sync explorer data with blockchain")
+	if *setupDb == "" && ChainName == "" {
+		// fmt.Println("Please select Rethink database name to setup")
 		flag.PrintDefaults()
 		return
 	}
 
-	// if *setupDb != "" {
-	// 	fmt.Println("setupDb = ", *setupDb)
-	// 	khojiutils.CreateDb(*setupDb)
+	// if *chainName == "" {
+	// 	fmt.Println("Please select chain name to sync explorer data with blockchain")
+	// 	flag.PrintDefaults()
 	// 	return
 	// }
+
+	if *setupDb != "" {
+		fmt.Println("setupDb = ", *setupDb)
+		khojiutils.CreateDb(*setupDb)
+		return
+	}
 
 	// if rDB == "" {
 	// 	fmt.Println("Please select Rethink database name to sync blochaain data with")
