@@ -6,6 +6,9 @@
         <div class="col-sm">
           <BlocksTable />
         </div>
+        <div class="col-sm offset-md-1">
+          <TransactionsTable />
+        </div>
       </div>
       <NetworkInfoTable />
     </div>
@@ -14,12 +17,14 @@
 
 <script>
 import BlocksTable from './components/BlocksTable.vue'
+import TransactionsTable from './components/TransactionsTable.vue'
 import NetworkInfoTable from './components/NetworkInfoTable.vue'
 
 export default {
   name: 'App',
   components: {
     BlocksTable,
+    TransactionsTable,
     NetworkInfoTable
   }
 }

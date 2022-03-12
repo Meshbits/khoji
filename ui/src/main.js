@@ -2,6 +2,7 @@ import Vue from 'vue';
 import App from './App.vue';
 import Main from './Main.vue';
 import BlockView from './components/BlockView.vue';
+import TransactionView from './components/TransactionView.vue';
 import { BootstrapVue } from 'bootstrap-vue';
 import VueRouter from 'vue-router';
 import 'bootstrap/dist/css/bootstrap.css';
@@ -18,7 +19,10 @@ const routes = [
   }, {
     path: "/block/:height",
     component: BlockView,
-  },
+  }, {
+    path: "/transaction/:hash",
+    component: TransactionView,
+  }
 ];
 
 const router = new VueRouter({
