@@ -268,9 +268,9 @@ func getTransactionDetails(ctx *fasthttp.RequestCtx) {
 }
 
 func getIdentityDetails(ctx *fasthttp.RequestCtx) {
-	hash := ctx.UserValue("hash").(string)
+	name := ctx.UserValue("name").(string)
 
-	res1, err1 := r.DB(rDB).Table("identities").Filter(map[string]interface{}{"txid": hash}).Run(session)
+	res1, err1 := r.DB(rDB).Table("identities").Filter(map[string]interface{}{"name": name}).Run(session)
 	if err1 != nil {
 		log.Panicf("Failed to get identity details from DB: %v", err1)
 	}
@@ -284,7 +284,7 @@ func getIdentityDetails(ctx *fasthttp.RequestCtx) {
 		// error
 	}
 
-	fmt.Println("txid", hash)
+	fmt.Println("name", name)
 
 	if row != nil {
 		ctx.SetStatusCode(200)
@@ -490,7 +490,7 @@ func InitRooter() *router.Router {
 	r.GET("/api/block/{height}", setResponseHeader(getBlockInfo))
 	r.GET("/api/blocks/{page}", setResponseHeader(getBlocksSlice))
 	r.GET("/api/blocks/last", setResponseHeader(getLastBlocks))
-	r.GET("/api/identity/{hash}", setResponseHeader(getIdentityDetails))
+	r.GET("/api/identity/{name}", setResponseHeader(getIdentityDetails))
 	r.GET("/api/identities/{page}", setResponseHeader(getIdentitiesSlice))
 	r.GET("/api/richlist/{page}", setResponseHeader(getAccountsSlice))
 
