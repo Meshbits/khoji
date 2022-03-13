@@ -54,7 +54,6 @@ func setResponseHeader(h fasthttp.RequestHandler) fasthttp.RequestHandler {
 	return func(ctx *fasthttp.RequestCtx) {
 		ctx.Response.Header.Set("Access-Control-Allow-Origin", "*")
 		h(ctx)
-		return
 	}
 }
 
@@ -69,10 +68,10 @@ func getAddressBalance(ctx *fasthttp.RequestCtx) {
 	var row interface{}
 	err2 := res1.One(&row)
 	if err2 == r.ErrEmptyResult {
-		// row not found
+		fmt.Println("row not found")
 	}
 	if err2 != nil {
-		// error
+		fmt.Println(err2)
 	}
 	if row != nil {
 		fmt.Println("row", row)
@@ -106,10 +105,10 @@ func getAddressTransactions(ctx *fasthttp.RequestCtx) {
 	var row interface{}
 	err2 := res1.One(&row)
 	if err2 == r.ErrEmptyResult {
-		// row not found
+		fmt.Println("row not found")
 	}
 	if err2 != nil {
-		// error
+		fmt.Println(err2)
 	}
 	if row != nil {
 		var txDetails []interface{}
@@ -125,10 +124,10 @@ func getAddressTransactions(ctx *fasthttp.RequestCtx) {
 			var row2 []interface{}
 			err4 := res3.All(&row2)
 			if err4 == r.ErrEmptyResult {
-				// row not found
+				fmt.Println("row not found")
 			}
 			if err4 != nil {
-				// error
+				fmt.Println(err2)
 			}
 
 			fmt.Println("row", row2)
@@ -168,10 +167,10 @@ func getBlockInfo(ctx *fasthttp.RequestCtx) {
 	var row []interface{}
 	err2 := res1.All(&row)
 	if err2 == r.ErrEmptyResult {
-		// row not found
+		fmt.Println("row not found")
 	}
 	if err2 != nil {
-		// error
+		fmt.Println(err2)
 	}
 
 	fmt.Println("height", height)
@@ -207,10 +206,10 @@ func getBlocksSlice(ctx *fasthttp.RequestCtx) {
 	var row []interface{}
 	err2 := res1.All(&row)
 	if err2 == r.ErrEmptyResult {
-		// row not found
+		fmt.Println("row not found")
 	}
 	if err2 != nil {
-		// error
+		fmt.Println(err2)
 	}
 
 	fmt.Println("page", page)
@@ -243,10 +242,10 @@ func getTransactionDetails(ctx *fasthttp.RequestCtx) {
 	var row []interface{}
 	err2 := res1.All(&row)
 	if err2 == r.ErrEmptyResult {
-		// row not found
+		fmt.Println("row not found")
 	}
 	if err2 != nil {
-		// error
+		fmt.Println(err2)
 	}
 
 	fmt.Println("txid", hash)
@@ -278,10 +277,10 @@ func getIdentityDetails(ctx *fasthttp.RequestCtx) {
 	var row []interface{}
 	err2 := res1.All(&row)
 	if err2 == r.ErrEmptyResult {
-		// row not found
+		fmt.Println("row not found")
 	}
 	if err2 != nil {
-		// error
+		fmt.Println(err2)
 	}
 
 	fmt.Println("name", name)
@@ -316,10 +315,10 @@ func getIdentitiesSlice(ctx *fasthttp.RequestCtx) {
 	var row []interface{}
 	err2 := res1.All(&row)
 	if err2 == r.ErrEmptyResult {
-		// row not found
+		fmt.Println("row not found")
 	}
 	if err2 != nil {
-		// error
+		fmt.Println(err2)
 	}
 
 	fmt.Println("page", page)
@@ -350,10 +349,10 @@ func getNetworkInfo(ctx *fasthttp.RequestCtx) {
 	var row []interface{}
 	err2 := res1.All(&row)
 	if err2 == r.ErrEmptyResult {
-		// row not found
+		fmt.Println("row not found")
 	}
 	if err2 != nil {
-		// error
+		fmt.Println(err2)
 	}
 
 	if row != nil {
@@ -388,10 +387,10 @@ func getAccountsSlice(ctx *fasthttp.RequestCtx) {
 	var row []interface{}
 	err2 := res1.All(&row)
 	if err2 == r.ErrEmptyResult {
-		// row not found
+		fmt.Println("row not found")
 	}
 	if err2 != nil {
-		// error
+		fmt.Println(err2)
 	}
 
 	fmt.Println("page", page)
@@ -424,10 +423,10 @@ func getLastBlocks(ctx *fasthttp.RequestCtx) {
 	var row []interface{}
 	err2 := res1.All(&row)
 	if err2 == r.ErrEmptyResult {
-		// row not found
+		fmt.Println("row not found")
 	}
 	if err2 != nil {
-		// error
+		fmt.Println(err2)
 	}
 
 	if row != nil {
@@ -457,10 +456,10 @@ func getLastTransactions(ctx *fasthttp.RequestCtx) {
 	var row []interface{}
 	err2 := res1.All(&row)
 	if err2 == r.ErrEmptyResult {
-		// row not found
+		fmt.Println("row not found")
 	}
 	if err2 != nil {
-		// error
+		fmt.Println(err2)
 	}
 
 	if row != nil {
