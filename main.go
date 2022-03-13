@@ -86,45 +86,24 @@ func init() {
 	if err != nil {
 		fmt.Printf("ERROR: There is issue connecting with the database.\nPlease make sure databse is accessible to Khoji by making sure settings in\nconfig.ini are setup properly and the database server is up and running.\n\n")
 		fmt.Println("ERROR DETAILS:", err)
-		os.Exit(5)
+		os.Exit(1)
 		return
 	}
 }
 
 func main() {
-
-	setupDb := flag.String("setupdb", "", "Rethink database name to create and setup with all tables required for explorer")
-	// chainName := flag.String("chain", "VRSC", "Define appname variable. The name value must be the matching value of it's data directory name. Example VerusCoin's data directory is `VRSC` and so on.")
-	// rDBName := flag.String("dbname", "", "Rethink database name")
-	flag.Parse()
-	// fmt.Println("chain:", *chainName)
-	// fmt.Println("dbname:", *rDBName)
 	appName = khojiutils.AppType(ChainName)
-	// rDB = *rDBName
+	khojiutils.CreateDb()
 
-	if *setupDb == "" && ChainName == "" {
-		// fmt.Println("Please select Rethink database name to setup")
-		flag.PrintDefaults()
-		return
+	// if flag enabled to reset database, delete existing databse and create fresh
+	resetdb := flag.Bool("resetdb", false, "Rethink database name to create and setup with all tables required for explorer")
+	flag.Parse()
+	// fmt.Println("*resetdb", *resetdb)
+
+	if *resetdb {
+		khojiutils.DropDB()
+		khojiutils.CreateDb()
 	}
-
-	// if *chainName == "" {
-	// 	fmt.Println("Please select chain name to sync explorer data with blockchain")
-	// 	flag.PrintDefaults()
-	// 	return
-	// }
-
-	if *setupDb != "" {
-		fmt.Println("setupDb = ", *setupDb)
-		khojiutils.CreateDb(*setupDb)
-		return
-	}
-
-	// if rDB == "" {
-	// 	fmt.Println("Please select Rethink database name to sync blochaain data with")
-	// 	flag.PrintDefaults()
-	// 	return
-	// }
 
 	// Insert blank lines before starting next log
 	khojiutils.Log.Printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")

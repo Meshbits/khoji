@@ -14,8 +14,8 @@ package khojiutils
 
 import (
 	"encoding/json"
-	"flag"
 	"fmt"
+	"log"
 	"os"
 
 	"gopkg.in/ini.v1"
@@ -45,30 +45,31 @@ func init() {
 	if err != nil {
 		fmt.Printf("ERROR: There is issue connecting with the database.\nPlease make sure databse is accessible to Khoji by making sure settings in\nconfig.ini are setup properly and the database server is up and running.\n\n")
 		fmt.Println("ERROR DETAILS:", err)
-		os.Exit(5)
+		os.Exit(1)
 		return
 	}
 }
 
-func CreateDb(dbname string) {
-
-	// rDBName := flag.String("dbname", "", "Rethink database name")
-	// flag.Parse()
-	// fmt.Println("dbname:", *rDBName)
-	// rDB = *rDBName
-	rDB = dbname
-
+func CreateDb() {
 	if rDB == "" {
 		fmt.Println("Please select dbname")
-		flag.PrintDefaults()
 		return
 	}
 
-	dropDB(rDB)
+	// dropDB(rDB)
 
-	createDb, err := r.DBCreate(rDB).Run(session)
-	fmt.Println(err)
-	fmt.Println(createDb)
+	createDb, _ := r.DBCreate(rDB).Run(session)
+	// if err != nil {
+	// 	fmt.Println(err)
+	// }
+	// fmt.Println(createDb)
+	if createDb == nil {
+		fmt.Println("Database already exists:", rDB)
+		return
+	}
+	if getObj(createDb) == "{}" {
+		log.Println("Database created:", rDB)
+	}
 
 	// res, err := r.DB(rDB).Table("network").Changes().Run(session)
 
@@ -99,38 +100,41 @@ func CreateDb(dbname string) {
 	createIndex(`sharedvout`, `hashvout`)
 }
 
-func dropDB(db string) {
-	result, err := r.DBDrop(db).Run(session)
+func DropDB() {
+	_, err := r.DBDrop(rDB).Run(session)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	printStr("*** DB Drop result: ***")
-	printObj(result)
-	printStr("\n")
+	log.Println("Database deleted:", rDB)
+	// printStr("*** DB Drop result: ***")
+	// printObj(result)
+	// printStr("\n")
 }
 
 func createTable(table, _primaryKey string) {
-	result, err := r.DB(rDB).TableCreate(table, r.TableCreateOpts{PrimaryKey: _primaryKey}).RunWrite(session)
+	_, err := r.DB(rDB).TableCreate(table, r.TableCreateOpts{PrimaryKey: _primaryKey}).RunWrite(session)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	printStr("*** Create table result: ***")
-	printObj(result)
-	printStr("\n")
+	log.Println("Table created:", table)
+	// printStr("*** Create table result: ***")
+	// printObj(result)
+	// printStr("\n")
 }
 
 func createIndex(table, index string) {
-	result, err := r.DB(rDB).Table(table).IndexCreate(index).RunWrite(session)
+	_, err := r.DB(rDB).Table(table).IndexCreate(index).RunWrite(session)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	printStr("*** Create table result: ***")
-	printObj(result)
-	printStr("\n")
+	log.Printf("Index created for table - %v: %v\n", table, index)
+	// printStr("*** Create table result: ***")
+	// printObj(result)
+	// printStr("\n")
 }
 
 func printStr(v string) {
@@ -140,4 +144,9 @@ func printStr(v string) {
 func printObj(v interface{}) {
 	vBytes, _ := json.Marshal(v)
 	fmt.Println(string(vBytes))
+}
+
+func getObj(v interface{}) string {
+	vBytes, _ := json.Marshal(v)
+	return string(vBytes)
 }
