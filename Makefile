@@ -43,88 +43,12 @@ DEPS_OSX=GOOS=darwin GOARCH=amd64
 DEPS_OSX_ARM=GOOS=darwin GOARCH=arm64
 DEPS_WIN=GOOS=windows GOARCH=amd64
 
-# # OS condition reference link: https://gist.github.com/sighingnow/deee806603ec9274fd47
-# UNAME_S=$(shell uname -s)
-# all:
-# 	@echo $(OSFLAG)
-
-# https://gist.github.com/sighingnow/deee806603ec9274fd47
-# https://stackoverflow.com/questions/714100/os-detecting-makefile
-
-ifeq ($(OS),Windows_NT)
-    OS_ARCH += WIN32
-    ifeq ($(PROCESSOR_ARCHITEW6432),AMD64)
-        OS_ARCH += AMD64
-    else
-        ifeq ($(PROCESSOR_ARCHITECTURE),AMD64)
-            OS_ARCH += AMD64
-        endif
-        ifeq ($(PROCESSOR_ARCHITECTURE),x86)
-            OS_ARCH += IA32
-        endif
-    endif
-else
-    UNAME_S := $(shell uname -s)
-    ifeq ($(UNAME_S),Linux)
-        OS_ARCH += LINUX
-    endif
-    ifeq ($(UNAME_S),Darwin)
-        OS_ARCH += OSX
-    endif
-    UNAME_P := $(shell uname -p)
-    ifeq ($(UNAME_P),x86_64)
-        OS_ARCH += AMD64
-    endif
-    ifneq ($(filter %86,$(UNAME_P)),)
-        OS_ARCH += IA32
-    endif
-    ifneq ($(filter arm%,$(UNAME_P)),)
-        OS_ARCH += ARM
-    endif
-	ifneq ($(filter aarch%,$(UNAME_P)),)
-        OS_ARCH += ARM
-    endif
-endif
-
-ifeq ($(OS_ARCH),LINUX AMD)
-	BUILD_DEPS=deps-linux
-	BUILD_KHOJI=$(DEPS_LINUX) $(GOBUILD) -o $(BINARY_NAME) -v
-endif
-ifeq ($(OS_ARCH),LINUX AMD64)
-	BUILD_DEPS=deps-linux
-	BUILD_KHOJI=$(DEPS_LINUX) $(GOBUILD) -o $(BINARY_NAME) -v
-endif
-ifeq ($(OS_ARCH),LINUX ARM)
-	BUILD_DEPS=deps-linux
-	BUILD_KHOJI=$(DEPS_LINUX) $(GOBUILD) -o $(BINARY_NAME) -v
-endif
-ifeq ($(OS_ARCH),OSX AMD)
-	BUILD_DEPS=deps-osx
-	BUILD_KHOJI=$(DEPS_OSX) $(GOBUILD) -o $(BINARY_NAME) -v
-endif
-ifeq ($(OS_ARCH),OSX IA32)
-	BUILD_DEPS=deps-osx
-	BUILD_KHOJI=$(DEPS_OSX) $(GOBUILD) -o $(BINARY_NAME) -v
-endif
-ifeq ($(OS_ARCH),OSX ARM)
-	BUILD_DEPS=deps-osx-arm
-	BUILD_KHOJI=$(DEPS_OSX_ARM) $(GOBUILD) -o $(BINARY_NAME) -v
-endif
-
-# all:
-# 	@echo $(OS_ARCH)
-# 	@echo $(GOPATH)
-# 	@echo $(FINAL_CMD)
 
 all: build
-build: #$(BUILD_DEPS)
+build: 
 	$(GITCMD) checkout $(CHECKOUT_BRANCH)
 	go mod tidy
 	$(GOBUILD) -o $(BINARY_NAME) -v
-#	$(BUILD_KHOJI)
-#	@echo $(BUILD_DEPS)
-#	@echo $(BUILD_KHOJI)
-#	@echo $(OS_ARCH)
 
 clean: 
 	$(GOCLEAN)
@@ -136,30 +60,9 @@ clean:
 run:
 	$(GITCMD) checkout $(CHECKOUT_BRANCH)
 	$(GOBUILD) -o $(BINARY_NAME) -v 
-	# ./$(BINARY_NAME) start
-# deps-linux:
-# 	$(DEPS_LINUX) $(GOGET) -u github.com/Meshbits/khoji
-# 	$(DEPS_LINUX) $(GOGET) -u gopkg.in/rethinkdb/rethinkdb-go.v6
-# 	$(DEPS_LINUX) $(GOGET) -u github.com/fasthttp/router
-# 	$(DEPS_LINUX) $(GOGET) -u github.com/valyala/fasthttp
+	./$(BINARY_NAME)
 
-# deps-osx:
-# 	$(DEPS_OSX) $(GOGET) -u github.com/Meshbits/khoji
-# 	$(DEPS_OSX) $(GOGET) -u gopkg.in/rethinkdb/rethinkdb-go.v6
-# 	$(DEPS_OSX) $(GOGET) -u github.com/fasthttp/router
-# 	$(DEPS_OSX) $(GOGET) -u github.com/valyala/fasthttp
-
-# deps-osx-arm:
-# 	$(DEPS_OSX_ARM) $(GOGET) -u github.com/Meshbits/khoji
-# 	$(DEPS_OSX_ARM) $(GOGET) -u gopkg.in/rethinkdb/rethinkdb-go.v6
-# 	$(DEPS_OSX_ARM) $(GOGET) -u github.com/fasthttp/router
-# 	$(DEPS_OSX_ARM) $(GOGET) -u github.com/valyala/fasthttp
-
-# deps-win:
-# 	$(DEPS_WIN) $(GOGET) -u github.com/Meshbits/khoji
-# 	$(DEPS_WIN) $(GOGET) -u gopkg.in/rethinkdb/rethinkdb-go.v6
-# 	$(DEPS_WIN) $(GOGET) -u github.com/fasthttp/router
-# 	$(DEPS_WIN) $(GOGET) -u github.com/valyala/fasthttp
+dist: build-linux build-osx build-osx-arm build-win
 
 # Cross compilation
 build-linux:
