@@ -45,7 +45,7 @@ func init() {
 	if err != nil {
 		fmt.Printf("ERROR: There is issue connecting with the database.\nPlease make sure databse is accessible to Khoji by making sure settings in\nconfig.ini are setup properly and the database server is up and running.\n\n")
 		fmt.Println("ERROR DETAILS:", err)
-		os.Exit(5)
+		os.Exit(1)
 		return
 	}
 }
