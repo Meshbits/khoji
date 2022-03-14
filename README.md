@@ -106,8 +106,8 @@ Make copy of `config.ini.sample` as `config.ini`, and configure `CHAIN_NAME`
 cp -av config.ini.sample config.ini
 ```
 
-Open `config.ini` file in text editor and and change value for `CHAIN_NAME` from `VRSCTEST` to the chain name you are going to run this explorer for.
-If testing using VRSCTEST chain, just leave the changes as is and proceed with next steps.
+Open `config.ini` file in text editor and change value for `CHAIN_NAME` from `VRSCTEST` to the chain name you are going to run this explorer for.
+If testing using `VRSCTEST` chain, just leave the changes as is and proceed with next steps.
 If using for example Veruscoin blockchain's mainnet then change it to `VRSC`.
 
 If you are running RethinkDB locally by executing the command `rethinkdb` in another terminal, then leave the Database section in `config.ini` file as is.
@@ -150,7 +150,7 @@ Now you can execute `khoji` to start explorer. It will setup Rethink database an
 
 # TODO
 
-- [-]	Make Explorer's RPC API using database
+- [x]	Make Explorer's RPC API using database
 - [ ]	Web Graphical Interface for Explorer
 - [ ]	Make explorer's gRPC API using database
 
@@ -190,7 +190,6 @@ After this command you'll find a zipped copy of Linux, MacOS, MacOS ARM64 and Wi
 To clean all compiled files execute the following command:
 
 ```shell
-cd $HOME/go/src/github.com/Meshbits/khoji
 make clean
 ```
 
