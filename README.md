@@ -198,7 +198,7 @@ It will delete all dist and binary files the build commands created.
 
 # Khoji Explorer API
 
-_This is just a quick and short information about supported APIs by Khoji._
+_This is just a quick and short information about supported APIs by Khoji explorer._
 _More detailed documentation will be added soon._
 
 API is accessible on port 3334 via http://localhost:3334.
@@ -206,15 +206,15 @@ API is accessible on port 3334 via http://localhost:3334.
 Following are the APIs which are supported:
 
 ```
-/v1/api/network
-/v1/api/balance/{address}
-/v1/api/transactions/{address}
-/v1/api/transactions/last
-/v1/api/transaction/{hash}
-/v1/api/block/{height}
-/v1/api/blocks/{page}
-/v1/api/blocks/last
-/v1/api/identity/{name}
-/v1/api/identities/{page}
-/v1/api/richlist/{page}
+/api/v1/network
+/api/v1/balance/{address}
+/api/v1/transactions/{address}
+/api/v1/transactions/last
+/api/v1/transaction/{hash}
+/api/v1/block/{height}
+/api/v1/blocks/{page}
+/api/v1/blocks/last
+/api/v1/identity/{name}
+/api/v1/identities/{page}
+/api/v1/richlist/{page}
 ```
