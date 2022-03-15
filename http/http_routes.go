@@ -481,17 +481,17 @@ func getLastTransactions(ctx *fasthttp.RequestCtx) {
 func InitRooter() *router.Router {
 	r := router.New()
 
-	r.GET("/api/network", setResponseHeader(getNetworkInfo))
-	r.GET("/api/balance/{address}", setResponseHeader(getAddressBalance))
-	r.GET("/api/transactions/{address}", setResponseHeader(getAddressTransactions))
-	r.GET("/api/transactions/last", setResponseHeader(getLastTransactions))
-	r.GET("/api/transaction/{hash}", setResponseHeader(getTransactionDetails))
-	r.GET("/api/block/{height}", setResponseHeader(getBlockInfo))
-	r.GET("/api/blocks/{page}", setResponseHeader(getBlocksSlice))
-	r.GET("/api/blocks/last", setResponseHeader(getLastBlocks))
-	r.GET("/api/identity/{name}", setResponseHeader(getIdentityDetails))
-	r.GET("/api/identities/{page}", setResponseHeader(getIdentitiesSlice))
-	r.GET("/api/richlist/{page}", setResponseHeader(getAccountsSlice))
+	r.GET("/v1/api/network", setResponseHeader(getNetworkInfo))
+	r.GET("/v1/api/balance/{address}", setResponseHeader(getAddressBalance))
+	r.GET("/v1/api/transactions/{address}", setResponseHeader(getAddressTransactions))
+	r.GET("/v1/api/transactions/last", setResponseHeader(getLastTransactions))
+	r.GET("/v1/api/transaction/{hash}", setResponseHeader(getTransactionDetails))
+	r.GET("/v1/api/block/{height}", setResponseHeader(getBlockInfo))
+	r.GET("/v1/api/blocks/{page}", setResponseHeader(getBlocksSlice))
+	r.GET("/v1/api/blocks/last", setResponseHeader(getLastBlocks))
+	r.GET("/v1/api/identity/{name}", setResponseHeader(getIdentityDetails))
+	r.GET("/v1/api/identities/{page}", setResponseHeader(getIdentitiesSlice))
+	r.GET("/v1/api/richlist/{page}", setResponseHeader(getAccountsSlice))
 
 	return r
 }
