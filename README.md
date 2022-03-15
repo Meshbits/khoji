@@ -1,5 +1,5 @@
 # Khoji Explorer
- Blockchain Explorer for Komodo Platform and it's ecosystem smartchains
+ Blockchain Explorer for VerusCoin and it's ecosystem chains
 
 
 # About codebase of Khoji Explorer
