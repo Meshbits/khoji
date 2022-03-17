@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"runtime"
 	"strconv"
 
+	"github.com/Meshbits/khoji/shepherd"
 	"github.com/fasthttp/router"
 	"github.com/valyala/fasthttp"
 	"gopkg.in/ini.v1"
@@ -478,6 +480,56 @@ func getLastTransactions(ctx *fasthttp.RequestCtx) {
 	}
 }
 
+func checkUpdate(ctx *fasthttp.RequestCtx) {
+	os := ctx.UserValue("os")
+	arch := ctx.UserValue("arch")
+	// fmt.Printf("OS: %v\nARCH: %v\n", os, arch)
+
+	if os == nil {
+		os = runtime.GOOS
+	}
+	if arch == nil {
+		arch = runtime.GOARCH
+	}
+
+	res1, err1 := r.DB(rDB).Table("network").Run(session)
+	if err1 != nil {
+		log.Panicf("Failed to get network info from DB: %v", err1)
+	}
+	// log.Printf("query res %v", res1)
+	var row []interface{}
+	err2 := res1.All(&row)
+	if err2 == r.ErrEmptyResult {
+		fmt.Println("row not found")
+	}
+	if err2 != nil {
+		fmt.Println(err2)
+	}
+
+	currentVersion := "v" + row[0].(map[string]interface{})["VRSCversion"].(string)
+
+	getUpdate := shepherd.GetDlURL(os.(string), arch.(string), currentVersion)
+	if getUpdate.Err != nil {
+		fmt.Println(getUpdate.Err)
+	}
+	getUpdate.CurrentVersion = currentVersion
+
+	if row != nil {
+		ctx.SetStatusCode(200)
+		jsonData, _ := json.Marshal(getUpdate)
+		ctx.SetBodyString(string(jsonData))
+		ctx.SetContentType("application/json")
+	} else {
+		ctx.SetStatusCode(200)
+		jsonData, _ := json.Marshal(respErr{
+			Error: "something went wrong",
+		})
+		ctx.SetStatusCode(200)
+		ctx.SetBodyString(string(jsonData))
+		ctx.SetContentType("application/json")
+	}
+}
+
 func InitRooter() *router.Router {
 	r := router.New()
 
@@ -492,6 +544,7 @@ func InitRooter() *router.Router {
 	r.GET("/api/v1/identity/{name}", setResponseHeader(getIdentityDetails))
 	r.GET("/api/v1/identities/{page}", setResponseHeader(getIdentitiesSlice))
 	r.GET("/api/v1/richlist/{page}", setResponseHeader(getAccountsSlice))
+	r.GET("/api/v1/checkupdate/{os?}/{arch?}", setResponseHeader(checkUpdate))
 
 	return r
 }
