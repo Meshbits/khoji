@@ -3,6 +3,8 @@ import App from './App.vue';
 import Main from './Main.vue';
 import BlockView from './components/BlockView.vue';
 import TransactionView from './components/TransactionView.vue';
+import IdentityView from './components/IdentityView.vue';
+import AddressView from './components/AddressView.vue';
 import { BootstrapVue } from 'bootstrap-vue';
 import VueRouter from 'vue-router';
 import 'bootstrap/dist/css/bootstrap.css';
@@ -22,7 +24,13 @@ const routes = [
   }, {
     path: "/transaction/:hash",
     component: TransactionView,
-  }
+  }, {
+    path: "/identity/:hash",
+    component: IdentityView,
+  }, {
+    path: "/address/:address",
+    component: AddressView,
+  },
 ];
 
 const router = new VueRouter({
