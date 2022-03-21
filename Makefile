@@ -46,7 +46,7 @@ DEPS_WIN=GOOS=windows GOARCH=amd64
 
 all: build
 build: 
-	$(GITCMD) checkout $(CHECKOUT_BRANCH)
+#	$(GITCMD) checkout $(CHECKOUT_BRANCH)
 	go mod tidy
 	$(GOBUILD) -o $(BINARY_NAME) -v
 
@@ -58,7 +58,7 @@ clean:
 	rm -f $(BINARY_OSX)
 	rm -f khoji.log
 run:
-	$(GITCMD) checkout $(CHECKOUT_BRANCH)
+#	$(GITCMD) checkout $(CHECKOUT_BRANCH)
 	$(GOBUILD) -o $(BINARY_NAME) -v 
 	./$(BINARY_NAME)
 
@@ -67,7 +67,7 @@ dist: build-linux build-osx build-osx-arm build-win
 # Cross compilation
 build-linux:
 	rm -rf $(DIST_UNIX_PATH)
-	$(GITCMD) checkout $(CHECKOUT_BRANCH)
+#	$(GITCMD) checkout $(CHECKOUT_BRANCH)
 	$(MKDIR_P) $(DIST_UNIX_PATH)
 	go mod tidy
 	$(DEPS_LINUX) $(GOBUILD) -o $(DIST_UNIX_PATH)/$(BINARY_NAME) -v
@@ -76,7 +76,7 @@ build-linux:
 	$(RM_RFV) $(DIST_UNIX_PATH)
 	cd $(ROOT_DIR)
 build-osx:
-	$(GITCMD) checkout $(CHECKOUT_BRANCH)
+#	$(GITCMD) checkout $(CHECKOUT_BRANCH)
 	$(MKDIR_P) $(DIST_OSX_PATH)
 	go mod tidy
 	$(DEPS_OSX) $(GOBUILD) -o $(DIST_OSX_PATH)/$(BINARY_NAME) -v
@@ -85,7 +85,7 @@ build-osx:
 	$(RM_RFV) $(DIST_OSX_PATH)
 	cd $(ROOT_DIR)
 build-osx-arm:
-	$(GITCMD) checkout $(CHECKOUT_BRANCH)
+#	$(GITCMD) checkout $(CHECKOUT_BRANCH)
 	$(MKDIR_P) $(DIST_OSX_ARM_PATH)
 	go mod tidy
 	$(DEPS_OSX_ARM) $(GOBUILD) -o $(DIST_OSX_ARM_PATH)/$(BINARY_NAME) -v
@@ -94,7 +94,7 @@ build-osx-arm:
 	$(RM_RFV) $(DIST_OSX_ARM_PATH)
 	cd $(ROOT_DIR)
 build-win:
-	$(GITCMD) checkout $(CHECKOUT_BRANCH)
+#	$(GITCMD) checkout $(CHECKOUT_BRANCH)
 	$(MKDIR_P) $(DIST_WIN_PATH)
 	go mod tidy
 	$(DEPS_WIN) $(GOBUILD) -o $(DIST_WIN_PATH)/$(BINARY_WIN) -v
