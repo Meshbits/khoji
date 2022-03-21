@@ -128,13 +128,6 @@ func toFixed(num float64, precision int) float64 {
 	return float64(round(num*output)) / output
 }
 
-func minimum(x, y float64) float64 {
-	if x < y {
-		return x
-	}
-	return y
-}
-
 func networkInfoDB() {
 	// Keeps updating network info in network table every 200 milli seconds
 	for {
