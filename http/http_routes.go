@@ -197,6 +197,16 @@ func getBlockInfo(ctx *fasthttp.RequestCtx) {
 func getBlocksSlice(ctx *fasthttp.RequestCtx) {
 	page := ctx.UserValue("page").(string)
 	pageInt, _ := strconv.Atoi(page)
+	if pageInt < 0 {
+		ctx.SetStatusCode(200)
+		jsonData, _ := json.Marshal(respErr{
+			Error: "Wrong page number",
+		})
+		ctx.SetStatusCode(200)
+		ctx.SetBodyString(string(jsonData))
+		ctx.SetContentType("application/json")
+		return
+	}
 
 	log.Printf("get blocks from: %v to %v", pageInt*MAX_ITEMS_PP, (pageInt+1)*MAX_ITEMS_PP)
 
@@ -306,6 +316,16 @@ func getIdentityDetails(ctx *fasthttp.RequestCtx) {
 func getIdentitiesSlice(ctx *fasthttp.RequestCtx) {
 	page := ctx.UserValue("page").(string)
 	pageInt, _ := strconv.Atoi(page)
+	if pageInt < 0 {
+		ctx.SetStatusCode(200)
+		jsonData, _ := json.Marshal(respErr{
+			Error: "Wrong page number",
+		})
+		ctx.SetStatusCode(200)
+		ctx.SetBodyString(string(jsonData))
+		ctx.SetContentType("application/json")
+		return
+	}
 
 	log.Printf("get identities from: %v to %v", pageInt*MAX_ITEMS_PP, (pageInt+1)*MAX_ITEMS_PP)
 
@@ -378,6 +398,16 @@ func getNetworkInfo(ctx *fasthttp.RequestCtx) {
 func getAccountsSlice(ctx *fasthttp.RequestCtx) {
 	page := ctx.UserValue("page").(string)
 	pageInt, _ := strconv.Atoi(page)
+	if pageInt < 0 {
+		ctx.SetStatusCode(200)
+		jsonData, _ := json.Marshal(respErr{
+			Error: "Wrong page number",
+		})
+		ctx.SetStatusCode(200)
+		ctx.SetBodyString(string(jsonData))
+		ctx.SetContentType("application/json")
+		return
+	}
 
 	log.Printf("get accounts from: %v to %v", pageInt*MAX_ITEMS_PP, (pageInt+1)*MAX_ITEMS_PP)
 
