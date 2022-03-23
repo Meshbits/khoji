@@ -1,4 +1,4 @@
-package khojiutils
+package utils
 
 import (
 	"log"

@@ -10,45 +10,18 @@
 //
 // Removal or modification of this copyright notice is prohibited.
 
-package khojiutils
+package db
 
 import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"os"
 
-	"gopkg.in/ini.v1"
 	r "gopkg.in/rethinkdb/rethinkdb-go.v6"
 )
 
-var session *r.Session
-
 // Rethink database name
-var rDB string
-
-func init() {
-	// fmt.Println("createdb")
-
-	var err error
-	cfg, err := ini.Load("config.ini")
-	if err != nil {
-		fmt.Printf("Fail to read file: %v", err)
-		os.Exit(1)
-	}
-	// rDB = os.Getenv("RDB_DB")
-	rDB = cfg.Section("DATABASE").Key("RDB_DB").String()
-	session, err = r.Connect(r.ConnectOpts{
-		Address:  cfg.Section("DATABASE").Key("RDB_IP").String() + ":" + cfg.Section("DATABASE").Key("RDB_PORT").String(),
-		Database: rDB,
-	})
-	if err != nil {
-		fmt.Printf("ERROR: There is issue connecting with the database.\nPlease make sure databse is accessible to Khoji by making sure settings in\nconfig.ini are setup properly and the database server is up and running.\n\n")
-		fmt.Println("ERROR DETAILS:", err)
-		os.Exit(1)
-		return
-	}
-}
+var rDB string = RDB
 
 func CreateDb() {
 	if rDB == "" {
@@ -58,7 +31,7 @@ func CreateDb() {
 
 	// dropDB(rDB)
 
-	createDb, _ := r.DBCreate(rDB).Run(session)
+	createDb, _ := r.DBCreate(rDB).Run(Session)
 	// if err != nil {
 	// 	fmt.Println(err)
 	// }
@@ -71,7 +44,7 @@ func CreateDb() {
 		log.Println("Database created:", rDB)
 	}
 
-	// res, err := r.DB(rDB).Table("network").Changes().Run(session)
+	// res, err := r.DB(rDB).Table("network").Changes().Run(Session)
 
 	createTable(`blocks`, `hash`)
 	createIndex(`blocks`, `height`)
@@ -101,7 +74,7 @@ func CreateDb() {
 }
 
 func DropDB() {
-	_, err := r.DBDrop(rDB).Run(session)
+	_, err := r.DBDrop(rDB).Run(Session)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -114,7 +87,7 @@ func DropDB() {
 }
 
 func createTable(table, _primaryKey string) {
-	_, err := r.DB(rDB).TableCreate(table, r.TableCreateOpts{PrimaryKey: _primaryKey}).RunWrite(session)
+	_, err := r.DB(rDB).TableCreate(table, r.TableCreateOpts{PrimaryKey: _primaryKey}).RunWrite(Session)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -126,7 +99,7 @@ func createTable(table, _primaryKey string) {
 }
 
 func createIndex(table, index string) {
-	_, err := r.DB(rDB).Table(table).IndexCreate(index).RunWrite(session)
+	_, err := r.DB(rDB).Table(table).IndexCreate(index).RunWrite(Session)
 	if err != nil {
 		fmt.Println(err)
 	}

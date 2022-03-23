@@ -24,8 +24,9 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/Meshbits/khoji/db"
 	"github.com/Meshbits/khoji/http"
-	"github.com/Meshbits/khoji/khojiutils"
+	"github.com/Meshbits/khoji/utils"
 	"gopkg.in/ini.v1"
 	r "gopkg.in/rethinkdb/rethinkdb-go.v6"
 )
@@ -36,20 +37,21 @@ var session *r.Session
 // Define appName type from kmdgo package
 // Define appname variable. The name value must be the matching value of it's data directory name.
 // Example Komodo's data directory is `komodo`, VerusCoin's data directory is `VRSC` and so on.
-var appName khojiutils.AppType
+var appName utils.AppType
 
 // local "bloom filter" to see only address specific balance changes
 // if left empty will print data for all addresses
 var addressToCheck = ""
 
 // Rethink database name
-var rDB string
+var rDB string = db.RDB
 
 // Blockchain
 var ChainName string
 
 func init() {
-	// fmt.Println("main")
+	session = db.Session
+	fmt.Println("main")
 
 	var err error
 	cfg, err := ini.Load("config.ini")
@@ -77,23 +79,11 @@ func init() {
 		fmt.Printf("Fail to read file: %v", err)
 		os.Exit(1)
 	}
-	// rDB = os.Getenv("RDB_DB")
-	rDB = cfg.Section("DATABASE").Key("RDB_DB").String()
-	session, err = r.Connect(r.ConnectOpts{
-		Address: cfg.Section("DATABASE").Key("RDB_IP").String() + ":" + cfg.Section("DATABASE").Key("RDB_PORT").String(),
-		// Database: rDB,
-	})
-	if err != nil {
-		fmt.Printf("ERROR: There is issue connecting with the database.\nPlease make sure databse is accessible to Khoji by making sure settings in\nconfig.ini are setup properly and the database server is up and running.\n\n")
-		fmt.Println("ERROR DETAILS:", err)
-		os.Exit(1)
-		return
-	}
 }
 
 func main() {
-	appName = khojiutils.AppType(ChainName)
-	khojiutils.CreateDb()
+	appName = utils.AppType(ChainName)
+	db.CreateDb()
 
 	// if flag enabled to reset database, delete existing databse and create fresh
 	resetdb := flag.Bool("resetdb", false, "Rethink database name to create and setup with all tables required for explorer")
@@ -101,12 +91,12 @@ func main() {
 	// fmt.Println("*resetdb", *resetdb)
 
 	if *resetdb {
-		khojiutils.DropDB()
-		khojiutils.CreateDb()
+		db.DropDB()
+		db.CreateDb()
 	}
 
 	// Insert blank lines before starting next log
-	khojiutils.Log.Printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
+	utils.Log.Printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
 
 	go networkInfoDB()
 	go txAccountBlockTimeUpdate()
@@ -196,11 +186,11 @@ func networkInfoDB() {
 		err := r.DB(rDB).Table("network").Insert(netInfoDB, r.InsertOpts{Conflict: networkMerge}).Exec(session)
 		if err != nil {
 			// log.Printf("Error writing network info to DB: %v", err)
-			khojiutils.Log.Printf("Error writing network info to DB: %v", err)
+			utils.Log.Printf("Error writing network info to DB: %v", err)
 		}
 		sleepSeconds := 10
 		// fmt.Printf("Updated Network Info. Will update again in %v seconds...\n", sleepSeconds)
-		khojiutils.Log.Printf("Updated Network Info. Will update again in %v seconds...\n", sleepSeconds)
+		utils.Log.Printf("Updated Network Info. Will update again in %v seconds...\n", sleepSeconds)
 		time.Sleep(time.Duration(sleepSeconds) * time.Second)
 	}
 }
@@ -211,7 +201,7 @@ func txAccountBlockTimeUpdate() {
 		res, err := r.DB(rDB).Table("transactions").Count().Run(session)
 		if err != nil {
 			// log.Printf("Error collecting total count of transactions in database: %v", err)
-			khojiutils.Log.Printf("Error collecting total count of transactions in database: %v", err)
+			utils.Log.Printf("Error collecting total count of transactions in database: %v", err)
 		}
 		var totalTx int
 		res.One(&totalTx)
@@ -222,7 +212,7 @@ func txAccountBlockTimeUpdate() {
 		res, err = r.DB(rDB).Table("accounts").Count().Run(session)
 		if err != nil {
 			// log.Printf("Error collecting total count of accounts in database: %v", err)
-			khojiutils.Log.Printf("Error collecting total count of accounts in database: %v", err)
+			utils.Log.Printf("Error collecting total count of accounts in database: %v", err)
 		}
 		var totalAccounts int
 		res.One(&totalAccounts)
@@ -233,7 +223,7 @@ func txAccountBlockTimeUpdate() {
 		res, err = r.DB(rDB).Table("identities").Count().Run(session)
 		if err != nil {
 			// log.Printf("Error collecting total count of accounts in database: %v", err)
-			khojiutils.Log.Printf("Error collecting total count of accounts in database: %v", err)
+			utils.Log.Printf("Error collecting total count of accounts in database: %v", err)
 		}
 		var totalIdentities int
 		res.One(&totalIdentities)
@@ -246,7 +236,7 @@ func txAccountBlockTimeUpdate() {
 			func(row r.Term) interface{} { return row.Field("time") }).Run(session)
 		if err != nil {
 			// log.Printf("Error collecting time for last 120 blocks: %v", err)
-			khojiutils.Log.Printf("Error collecting time for last 120 blocks: %v", err)
+			utils.Log.Printf("Error collecting time for last 120 blocks: %v", err)
 		}
 		var collective120BlockTimes []float64
 		res.All(&collective120BlockTimes)
@@ -272,12 +262,12 @@ func txAccountBlockTimeUpdate() {
 		}).Exec(session)
 		if err != nil {
 			// log.Printf("Error updating network stats: %v", err)
-			khojiutils.Log.Printf("Error updating network stats: %v", err)
+			utils.Log.Printf("Error updating network stats: %v", err)
 		}
 		res.Close()
 		sleepSeconds := 60
 		// fmt.Printf("Updated Total Transactions, Total Accounts and Average block time info. Will update again in %v seconds...\n", sleepSeconds)
-		khojiutils.Log.Printf("Updated Total Transactions, Total Accounts and Average block time info. Will update again in %v seconds...\n", sleepSeconds)
+		utils.Log.Printf("Updated Total Transactions, Total Accounts and Average block time info. Will update again in %v seconds...\n", sleepSeconds)
 		time.Sleep(time.Duration(sleepSeconds) * time.Second)
 	}
 }
@@ -300,7 +290,7 @@ func checkIfBlocksSynced() {
 					"isSyncComplete": false,
 				}).Exec(session)
 				if err != nil {
-					khojiutils.Log.Printf("Failed to write sync info to DB: %v", err)
+					utils.Log.Printf("Failed to write sync info to DB: %v", err)
 					log.Panicf("Failed to write sync info to DB: %v", err)
 				}
 				// and also trigger syncBlocksDB function to check and update database blocks to sync with the blockchain
@@ -317,7 +307,7 @@ func syncBlocksDB() {
 	var netRow map[string]interface{}
 	cursor, err := r.DB(rDB).Table("network").Get(rDB).Run(session)
 	if err != nil {
-		khojiutils.Log.Printf("Failed to get network info from DB: %v", err)
+		utils.Log.Printf("Failed to get network info from DB: %v", err)
 		log.Panicf("Failed to get network info from DB: %v", err)
 	}
 	cursor.One(&netRow)
@@ -351,7 +341,7 @@ func syncBlocksDB() {
 		percentSyncDone := float64(float64(blockNum)/float64(latestBlock)) * 100
 		pStr := fmt.Sprintf("%.2f", percentSyncDone) + "%"
 		fmt.Println("Last synced - ", blockNum, "| Blocks remaining - ", latestBlock-blockNum, "| Percent Done - ", pStr)
-		khojiutils.Log.Println("Last synced - ", blockNum, "| Blocks remaining - ", latestBlock-blockNum, "| Percent Done - ", pStr)
+		utils.Log.Println("Last synced - ", blockNum, "| Blocks remaining - ", latestBlock-blockNum, "| Percent Done - ", pStr)
 
 		// Collect block details using block number
 		_blockDetails, _ := appName.RPCResultMap("getblock", []interface{}{strconv.FormatUint(blockNum, 10), 2})
@@ -436,16 +426,16 @@ func syncBlocksDB() {
 		// Insert new block to to the database
 		err = r.DB(rDB).Table("blocks").Insert(blockDBItem, r.InsertOpts{Conflict: "update"}).Exec(session)
 		if err != nil {
-			khojiutils.Log.Printf("Failed to write block info to DB: %v", err)
+			utils.Log.Printf("Failed to write block info to DB: %v", err)
 			log.Panicf("Failed to write block info to DB: %v", err)
 		}
 		// log.Printf("New block added Hash: %s | Block Number: %v", blockDetails["hash"], blockNum)
-		khojiutils.Log.Printf("New block added Hash: %s | Block Number: %v", blockDetails["hash"], blockNum)
+		utils.Log.Printf("New block added Hash: %s | Block Number: %v", blockDetails["hash"], blockNum)
 
 		// Update last synced block once remaining blocks are all synced and matched with the blockchain results
 		err = r.DB(rDB).Table("network").Get(rDB).Update(map[string]interface{}{"lastSynced": blockNum}).Exec(session)
 		if err != nil {
-			khojiutils.Log.Printf("Failed to write sync info to DB: %v", err)
+			utils.Log.Printf("Failed to write sync info to DB: %v", err)
 			log.Panicf("Failed to write sync info to DB: %v", err)
 		}
 	}
@@ -454,11 +444,11 @@ func syncBlocksDB() {
 		"isSyncComplete": true,
 	}).Exec(session)
 	if err != nil {
-		khojiutils.Log.Printf("Failed to write sync info to DB: %v", err)
+		utils.Log.Printf("Failed to write sync info to DB: %v", err)
 		log.Panicf("Failed to write sync info to DB: %v", err)
 	}
 	fmt.Println("blocks sync completed!")
-	khojiutils.Log.Println("blocks sync completed!")
+	utils.Log.Println("blocks sync completed!")
 }
 
 // add/update block miner's address to accounts table
@@ -484,7 +474,7 @@ func addMinerAccount(txidData interface{}, block map[string]interface{}) {
 	}
 	err := r.DB(rDB).Table("accounts").Insert(_account, r.InsertOpts{Conflict: accountMerge}).Exec(session)
 	if err != nil {
-		khojiutils.Log.Printf("Failed to write transaction info to DB: %v", err)
+		utils.Log.Printf("Failed to write transaction info to DB: %v", err)
 		log.Panicf("Failed to write transaction info to DB: %v", err)
 	}
 	//log.Printf("Updated account %s %i", _minerAddress)
@@ -513,7 +503,7 @@ func updateSentBalances(txData, retrievedVout, block map[string]interface{}, txS
 		// for some reason if the value in this INPUT/vin is nil, use value from previous OUTPUT collected from insertTxDB() function
 		if vInObj["valueSat"] == nil { // why
 			// log.Printf("Value was nil: %v", vInObj)
-			khojiutils.Log.Printf("Value was nil: %v", vInObj)
+			utils.Log.Printf("Value was nil: %v", vInObj)
 			vInObj["valueSat"] = retrievedVout["valueSat"]
 		}
 		// make a temporary array to store txids
@@ -536,7 +526,7 @@ func updateSentBalances(txData, retrievedVout, block map[string]interface{}, txS
 		res1, err1 := r.DB(rDB).Table("sharedvout").Filter(map[string]interface{}{"hashvout": vInObj["txid"].(string) + ":" + voutindex}).Map(
 			func(row r.Term) interface{} { return row.Field("addresses") }).Run(session)
 		if err1 != nil {
-			khojiutils.Log.Printf("Failed to get shared transaction info from DB: %v", err1)
+			utils.Log.Printf("Failed to get shared transaction info from DB: %v", err1)
 			log.Panicf("Failed to get shared transaction info from DB: %v", err1)
 		}
 		//log.Printf("query res %v", res1)
@@ -550,9 +540,9 @@ func updateSentBalances(txData, retrievedVout, block map[string]interface{}, txS
 		}
 		if row != nil {
 			// log.Printf("Found shared vout %s %v", vInObj["txid"].(string)+":"+voutindex, row)
-			khojiutils.Log.Printf("Found shared vout %s %v", vInObj["txid"].(string)+":"+voutindex, row)
+			utils.Log.Printf("Found shared vout %s %v", vInObj["txid"].(string)+":"+voutindex, row)
 			// log.Printf("Shared vout spent txid %s", txData["txid"])
-			khojiutils.Log.Printf("Shared vout spent txid %s", txData["txid"])
+			utils.Log.Printf("Shared vout spent txid %s", txData["txid"])
 
 			for _, addr := range row.([]interface{}) {
 				var totalSent int64
@@ -562,7 +552,7 @@ func updateSentBalances(txData, retrievedVout, block map[string]interface{}, txS
 					totalSent = 0
 				}
 				// log.Printf("Deduct shared balance for addr %v %v", addr, int(-1.0*vInObj["valueSat"].(float64)))
-				khojiutils.Log.Printf("Deduct shared balance for addr %v %v", addr, int(-1.0*vInObj["valueSat"].(float64)))
+				utils.Log.Printf("Deduct shared balance for addr %v %v", addr, int(-1.0*vInObj["valueSat"].(float64)))
 				err := r.DB(rDB).Table("accounts").Insert(map[string]interface{}{
 					"address":      addr,
 					"firstSeen":    block["time"],
@@ -579,12 +569,12 @@ func updateSentBalances(txData, retrievedVout, block map[string]interface{}, txS
 					"transactions": []interface{}{txData["txid"]},
 				}, r.InsertOpts{Conflict: accountMerge}).Exec(session)
 				if err != nil {
-					khojiutils.Log.Printf("Failed to write transaction info to DB: %v", err)
+					utils.Log.Printf("Failed to write transaction info to DB: %v", err)
 					log.Panicf("Failed to write transaction info to DB: %v", err)
 				}
 				if addressToCheck == "" || addr == addressToCheck {
 					// log.Printf("Updated sender account %s balance %v height %v", addr, int(-1.0*vInObj["valueSat"].(float64)), block["height"])
-					khojiutils.Log.Printf("Updated sender account %s balance %v height %v", addr, int(-1.0*vInObj["valueSat"].(float64)), block["height"])
+					utils.Log.Printf("Updated sender account %s balance %v height %v", addr, int(-1.0*vInObj["valueSat"].(float64)), block["height"])
 				}
 			}
 		}
@@ -606,12 +596,12 @@ func updateSentBalances(txData, retrievedVout, block map[string]interface{}, txS
 				"transactions": []interface{}{txData["txid"]},
 			}, r.InsertOpts{Conflict: accountMerge}).Exec(session)
 			if err != nil {
-				khojiutils.Log.Printf("Failed to write transaction info to DB: %v", err)
+				utils.Log.Printf("Failed to write transaction info to DB: %v", err)
 				log.Panicf("Failed to write transaction info to DB: %v", err)
 			}
 			if addressToCheck == "" || senderAddr == addressToCheck {
 				// log.Printf("Updated sender account %s balance %v height %v", senderAddr, int(-1.0*vInObj["valueSat"].(float64)), block["height"])
-				khojiutils.Log.Printf("Updated sender account %s balance %v height %v", senderAddr, int(-1.0*vInObj["valueSat"].(float64)), block["height"])
+				utils.Log.Printf("Updated sender account %s balance %v height %v", senderAddr, int(-1.0*vInObj["valueSat"].(float64)), block["height"])
 			}
 			//log.Printf("Updated account %s", senderAddr)
 		}
@@ -668,10 +658,10 @@ func updateRecvBalances(txData, retrievedVout, block map[string]interface{}, txS
 			*/
 			if len(scriptPubKey["addresses"].([]interface{})) > 1 {
 				// log.Printf("Shared vout data txid %s index %v", txData["txid"], vOutObj.(map[string]interface{})["n"].(float64))
-				khojiutils.Log.Printf("Shared vout data txid %s index %v", txData["txid"], vOutObj.(map[string]interface{})["n"].(float64))
+				utils.Log.Printf("Shared vout data txid %s index %v", txData["txid"], vOutObj.(map[string]interface{})["n"].(float64))
 				str := fmt.Sprintf("%v", scriptPubKey["addresses"].([]interface{}))
 				// fmt.Println(str)
-				khojiutils.Log.Println("scriptPubKey[\"addresses\"]", str)
+				utils.Log.Println("scriptPubKey[\"addresses\"]", str)
 
 				voutindex := strconv.Itoa(int(vOutObj.(map[string]interface{})["n"].(float64)))
 				err := r.DB(rDB).Table("sharedvout").Insert(map[string]interface{}{
@@ -679,7 +669,7 @@ func updateRecvBalances(txData, retrievedVout, block map[string]interface{}, txS
 					"addresses": scriptPubKey["addresses"].([]interface{}),
 				}, r.InsertOpts{Conflict: accountMerge}).Exec(session)
 				if err != nil {
-					khojiutils.Log.Printf("Failed to write shared vout info to DB: %v", err)
+					utils.Log.Printf("Failed to write shared vout info to DB: %v", err)
 					log.Panicf("Failed to write shared vout info to DB: %v", err)
 				}
 			}
@@ -701,12 +691,12 @@ func updateRecvBalances(txData, retrievedVout, block map[string]interface{}, txS
 					"transactions": []interface{}{txData["txid"]},
 				}, r.InsertOpts{Conflict: accountMerge}).Exec(session)
 				if err != nil {
-					khojiutils.Log.Printf("Failed to write transaction info to DB: %v", err)
+					utils.Log.Printf("Failed to write transaction info to DB: %v", err)
 					log.Panicf("Failed to write transaction info to DB: %v", err)
 				}
 				if addressToCheck == "" || voutAddress == addressToCheck {
 					// log.Printf("Updated receiver account %s balance %v height %v", voutAddress, vOutValue, block["height"])
-					khojiutils.Log.Printf("Updated receiver account %s balance %v height %v", voutAddress, vOutValue, block["height"])
+					utils.Log.Printf("Updated receiver account %s balance %v height %v", voutAddress, vOutValue, block["height"])
 				}
 			}
 			//log.Printf("Updated account %s", senderAddr)
@@ -757,12 +747,12 @@ func updateRecvBalances(txData, retrievedVout, block map[string]interface{}, txS
 				"recv":       []interface{}{txData["txid"]},
 			}, r.InsertOpts{Conflict: accountMerge}).Exec(session)
 			if err != nil {
-				khojiutils.Log.Printf("Failed to write transaction info to DB: %v", err)
+				utils.Log.Printf("Failed to write transaction info to DB: %v", err)
 				log.Panicf("Failed to write transaction info to DB: %v", err)
 			}
 			if addr.(string) == addressToCheck {
 				// log.Printf("Updated receiver account %s balance, value %v", addr, toFixed(float64(vOutValue), 8))
-				khojiutils.Log.Printf("Updated receiver account %s balance, value %v", addr, toFixed(float64(vOutValue), 8))
+				utils.Log.Printf("Updated receiver account %s balance, value %v", addr, toFixed(float64(vOutValue), 8))
 			}
 		}*/
 	}
@@ -799,11 +789,11 @@ func addUpdateIdentity(vOutData []interface{}, block map[string]interface{}) {
 					"vout":                voutv.(map[string]interface{})["n"],
 				}, r.InsertOpts{Conflict: identityMerge}).Exec(session)
 				if err != nil {
-					khojiutils.Log.Printf("Failed to write identity info to DB: %v", err)
+					utils.Log.Printf("Failed to write identity info to DB: %v", err)
 					log.Panicf("Failed to write identity info to DB: %v", err)
 				}
 				// log.Printf("Updated identity %s", identity["name"])
-				khojiutils.Log.Printf("Updated identity %s", identity["name"])
+				utils.Log.Printf("Updated identity %s", identity["name"])
 			}
 		}
 	}
@@ -952,7 +942,7 @@ func insertTxDB(txIndex int, txidData interface{}, block map[string]interface{})
 	// fmt.Println("info -- ", info)
 	err := r.DB(rDB).Table("transactions").Insert(info, r.InsertOpts{Conflict: "update"}).Exec(session)
 	if err != nil {
-		khojiutils.Log.Printf("Failed to write transaction info to DB: %v", err)
+		utils.Log.Printf("Failed to write transaction info to DB: %v", err)
 		log.Panicf("Failed to write transaction info to DB: %v", err)
 	}
 	// log.Printf("Wrote tx %s to DB", txData["txid"])
