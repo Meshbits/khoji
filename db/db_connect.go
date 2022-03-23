@@ -14,7 +14,7 @@ var Session *r.Session
 var RDB string
 
 func init() {
-	// fmt.Println("db_connect")
+	fmt.Println("db_connect")
 
 	var err error
 	cfg, err := ini.Load("config.ini")
