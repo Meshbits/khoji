@@ -50,7 +50,7 @@ var rDB string
 var ChainName string
 
 func init() {
-	fmt.Println("main")
+	// fmt.Println("main")
 	session = db.Session
 
 	var err error

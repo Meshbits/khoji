@@ -31,7 +31,7 @@ var session *r.Session
 var rDB string = db.RDB
 
 func init() {
-	fmt.Println("http_routes")
+	// fmt.Println("http_routes")
 	session = db.Session
 
 	var err error

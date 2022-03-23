@@ -26,7 +26,7 @@ import (
 var rDB string
 
 func init() {
-	fmt.Println("db")
+	// fmt.Println("db")
 
 	var err error
 	cfg, err := ini.Load("config.ini")
