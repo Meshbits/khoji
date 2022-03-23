@@ -16,12 +16,26 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"os"
 
+	"gopkg.in/ini.v1"
 	r "gopkg.in/rethinkdb/rethinkdb-go.v6"
 )
 
 // Rethink database name
-var rDB string = RDB
+var rDB string
+
+func init() {
+	fmt.Println("db")
+
+	var err error
+	cfg, err := ini.Load("config.ini")
+	if err != nil {
+		fmt.Printf("Fail to read file: %v", err)
+		os.Exit(1)
+	}
+	rDB = cfg.Section("DATABASE").Key("RDB_DB").String()
+}
 
 func CreateDb() {
 	if rDB == "" {
