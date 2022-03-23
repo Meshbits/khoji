@@ -44,7 +44,7 @@ var appName utils.AppType
 var addressToCheck = ""
 
 // Rethink database name
-var rDB string = db.RDB
+var rDB string
 
 // Blockchain
 var ChainName string
@@ -56,6 +56,7 @@ func init() {
 	var err error
 	cfg, err := ini.Load("config.ini")
 
+	rDB = cfg.Section("DATABASE").Key("RDB_DB").String()
 	ChainName = cfg.Section("BLOCKCHAIN").Key("CHAIN_NAME").String()
 	has_rpc_ip := cfg.Section("BLOCKCHAIN").HasKey("RPC_IP")
 	// fmt.Println("has_rpc_ip:", has_rpc_ip)

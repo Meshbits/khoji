@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"os"
 	"runtime"
 	"strconv"
 
@@ -11,6 +12,7 @@ import (
 	"github.com/Meshbits/khoji/shepherd"
 	"github.com/fasthttp/router"
 	"github.com/valyala/fasthttp"
+	"gopkg.in/ini.v1"
 	r "gopkg.in/rethinkdb/rethinkdb-go.v6"
 )
 
@@ -31,6 +33,14 @@ var rDB string = db.RDB
 func init() {
 	// fmt.Println("http_routes")
 	session = db.Session
+
+	var err error
+	cfg, err := ini.Load("config.ini")
+	if err != nil {
+		fmt.Printf("Fail to read file: %v", err)
+		os.Exit(1)
+	}
+	rDB = cfg.Section("DATABASE").Key("RDB_DB").String()
 }
 
 func setResponseHeader(h fasthttp.RequestHandler) fasthttp.RequestHandler {
