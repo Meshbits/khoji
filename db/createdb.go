@@ -110,14 +110,14 @@ func createIndex(table, index string) {
 	// printStr("\n")
 }
 
-func printStr(v string) {
-	fmt.Println(v)
-}
+// func printStr(v string) {
+// 	fmt.Println(v)
+// }
 
-func printObj(v interface{}) {
-	vBytes, _ := json.Marshal(v)
-	fmt.Println(string(vBytes))
-}
+// func printObj(v interface{}) {
+// 	vBytes, _ := json.Marshal(v)
+// 	fmt.Println(string(vBytes))
+// }
 
 func getObj(v interface{}) string {
 	vBytes, _ := json.Marshal(v)

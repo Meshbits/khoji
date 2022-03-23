@@ -197,7 +197,7 @@ func (appName AppType) RPCResultMap(method string, params interface{}) (interfac
 	// fmt.Printf("params -- %+v\n", params)
 
 	paramsJSON, _ := json.Marshal(params)
-	// fmt.Println(string(paramsJSON))
+	// fmt.Println("paramsJSON:", string(paramsJSON))
 
 	query := APIQuery{
 		Method: method,

@@ -50,8 +50,8 @@ var rDB string = db.RDB
 var ChainName string
 
 func init() {
+	// fmt.Println("main")
 	session = db.Session
-	fmt.Println("main")
 
 	var err error
 	cfg, err := ini.Load("config.ini")
