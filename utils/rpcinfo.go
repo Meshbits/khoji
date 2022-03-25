@@ -33,6 +33,7 @@ func AppRPCInfo(appName string) (string, string, string) {
 	fmt.Println("appDir:", appDir)
 
 	var appConf string
+	fmt.Println("appName", appName)
 
 	if strings.ToLower(appName) == "komodo" || strings.ToLower(appName) == ".komodo" {
 		if runtime.GOOS == "darwin" {
