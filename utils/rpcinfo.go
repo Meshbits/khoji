@@ -27,24 +27,31 @@ func BytesToString(data []byte) string {
 }
 
 // AppRPCInfo returns RPC username, password, port info for a specified Komodo Assetchain (Antara smartchain)
-func AppRPCInfo(appName string) (string, string, string) {
-	appDir := AppDataDir(appName, false)
+func AppRPCInfo(appMeta AppMetaData) (string, string, string) {
+	appDir := AppDataDir(appMeta)
+	// fmt.Println("appDir", appDir)
 
 	var appConf string
 
-	if strings.ToLower(appName) == "komodo" || strings.ToLower(appName) == ".komodo" {
+	if strings.ToLower(appMeta.Network) == "komodo" || strings.ToLower(appMeta.Network) == ".komodo" {
 		if runtime.GOOS == "darwin" {
-			appConf = filepath.Join(appDir, strings.Title(appName)+`.conf`)
+			appConf = filepath.Join(appDir, strings.Title(appMeta.Network)+`.conf`)
 		} else {
-			appConf = filepath.Join(appDir, strings.ToLower(appName)+`.conf`)
+			appConf = filepath.Join(appDir, strings.ToLower(appMeta.Network)+`.conf`)
 		}
 	} else {
-		if strings.ToLower(appName) == "vrsctest" {
-			appConf = filepath.Join(appDir, strings.ToLower(appName)+`.conf`)
+		if strings.ToLower(appMeta.Network) == "vrsctest" {
+			if appMeta.IsPBaaS != true {
+				appConf = filepath.Join(appDir, strings.ToLower(appMeta.Network)+`.conf`)
+			} else {
+				appConf = filepath.Join(appDir, strings.ToLower(appMeta.PBaaS)+`.conf`)
+			}
 		} else {
-			appConf = filepath.Join(appDir, strings.ToUpper(appName)+`.conf`)
+			appConf = filepath.Join(appDir, strings.ToUpper(appMeta.Network)+`.conf`)
 		}
 	}
+
+	// fmt.Println("appConf", appConf)
 
 	confdata, err := ioutil.ReadFile(appConf)
 	if err != nil {
@@ -85,7 +92,7 @@ func AppRPCInfo(appName string) (string, string, string) {
 	AppRPCpass := strings.TrimLeft(rpcpassLine, `rpcpassword`)[1:]
 	//AppRPCport := strings.TrimLeft(rpcpportLine,`rpcport`)[1:]
 
-	if AppRPCport == "" && appName == "komodo" {
+	if AppRPCport == "" && appMeta.Network == "komodo" {
 		AppRPCport = "7771"
 	}
 

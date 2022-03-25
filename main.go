@@ -37,7 +37,7 @@ var session *r.Session
 // Define appName type from kmdgo package
 // Define appname variable. The name value must be the matching value of it's data directory name.
 // Example Komodo's data directory is `komodo`, VerusCoin's data directory is `VRSC` and so on.
-var appName utils.AppType
+var appMeta utils.AppMetaData
 
 // local "bloom filter" to see only address specific balance changes
 // if left empty will print data for all addresses
@@ -83,7 +83,10 @@ func init() {
 }
 
 func main() {
-	appName = utils.AppType(ChainName)
+	appMeta = utils.AppMetaData{
+		Network: ChainName,
+	}
+	// appName = utils.AppType(ChainName)
 	db.CreateDb()
 
 	// if flag enabled to reset database, delete existing databse and create fresh
@@ -123,27 +126,27 @@ func networkInfoDB() {
 	// Keeps updating network info in network table every 200 milli seconds
 	for {
 		// Collect getinfo information
-		_info, _ := appName.RPCResultMap("getinfo", []interface{}{})
+		_info, _ := appMeta.RPCResultMap("getinfo", []interface{}{})
 		// fmt.Println("_info", _info)
 		info := _info.(map[string]interface{})
 		// fmt.Println("info", info)
 
 		// Collect block hash of latest known block number
-		blockHash, _ := appName.RPCResultMap("getblockhash", []interface{}{info["blocks"]})
+		blockHash, _ := appMeta.RPCResultMap("getblockhash", []interface{}{info["blocks"]})
 		// fmt.Printf("Block Hash of %v: %v\n", info["blocks"], blockHash)
 
 		// Collect network information
-		_netInfo, _ := appName.RPCResultMap("getnetworkinfo", []interface{}{})
+		_netInfo, _ := appMeta.RPCResultMap("getnetworkinfo", []interface{}{})
 		// fmt.Println("_netInfo ", _netInfo)
 		netInfo := _netInfo.(map[string]interface{})
 		// fmt.Println("Network Info: ", netInfo)
 
 		// Collect network hashes per second data
-		netHashPs, _ := appName.RPCResultMap("getnetworkhashps", []interface{}{120, -1})
+		netHashPs, _ := appMeta.RPCResultMap("getnetworkhashps", []interface{}{120, -1})
 		// fmt.Println("Network Hash: ", netHashPs)
 
 		// Get information on total coinsupply and total funds residing in shielded info
-		_supply, _ := appName.RPCResultMap("coinsupply", []interface{}{})
+		_supply, _ := appMeta.RPCResultMap("coinsupply", []interface{}{})
 		// fmt.Println("_supply", _supply)
 		supply := _supply.(map[string]interface{})
 		// fmt.Println("supply", supply)
@@ -328,7 +331,7 @@ func syncBlocksDB() {
 	if netRow["blockNumber"] != nil && netRow["blockNumber"] != 0 {
 		latestBlock = uint64(netRow["blockNumber"].(float64))
 	} else {
-		_info, _ := appName.RPCResultMap("getinfo", []interface{}{})
+		_info, _ := appMeta.RPCResultMap("getinfo", []interface{}{})
 		latestBlock = uint64(_info.(map[string]interface{})["blocks"].(float64))
 	}
 
@@ -345,13 +348,13 @@ func syncBlocksDB() {
 		utils.Log.Println("Last synced - ", blockNum, "| Blocks remaining - ", latestBlock-blockNum, "| Percent Done - ", pStr)
 
 		// Collect block details using block number
-		_blockDetails, _ := appName.RPCResultMap("getblock", []interface{}{strconv.FormatUint(blockNum, 10), 2})
+		_blockDetails, _ := appMeta.RPCResultMap("getblock", []interface{}{strconv.FormatUint(blockNum, 10), 2})
 		blockDetails := _blockDetails.(map[string]interface{})
 		blockGenTime := float64(0)
 
 		if blockNum > 0 {
 			// Get previous block info
-			_prevBlockDetails, _ := appName.RPCResultMap("getblock", []interface{}{strconv.FormatUint(blockNum-1, 10)})
+			_prevBlockDetails, _ := appMeta.RPCResultMap("getblock", []interface{}{strconv.FormatUint(blockNum-1, 10)})
 			prevBlockDetails := _prevBlockDetails.(map[string]interface{})
 			blockGenTime = blockDetails["time"].(float64) - prevBlockDetails["time"].(float64)
 		}
@@ -887,7 +890,7 @@ func insertTxDB(txIndex int, txidData interface{}, block map[string]interface{})
 			// For this input transaction, get the information from previous transactions output
 			// and get "transaction amount" and "sent from" address details from that output, along with the whole vout
 			// to pass to next section of code to process that for calculating balances for accounts/addresses
-			_rawtx, _ := appName.RPCResultMap("getrawtransaction", []interface{}{vInObj["txid"], 1})
+			_rawtx, _ := appMeta.RPCResultMap("getrawtransaction", []interface{}{vInObj["txid"], 1})
 			// fmt.Println(_rawtx)
 			rawtx := _rawtx.(map[string]interface{})
 			rawTxvOutData := rawtx["vout"].([]interface{})

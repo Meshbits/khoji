@@ -77,28 +77,28 @@ func NewAppType(app AppType) *AppType {
 // os.Setenv("komodo" + "_RPCPORT", `7771`)
 //
 // As per this example, if for example using different SmartChain like "DEX", and the appName is set to example "DEX", just replace it word `komodo` with `DEX`.
-func (appName AppType) APICall(q *APIQuery) string {
-	// fmt.Println(appName)
-	if appName == "KMD" || appName == "Komodo" {
-		appName = AppType("komodo")
-		// fmt.Println(appName)
+func (appMeta AppMetaData) APICall(q *APIQuery) string {
+	// fmt.Println("APICall appMeta", appMeta)
+	if appMeta.Network == "KMD" || appMeta.Network == "Komodo" {
+		appMeta.Network = "komodo"
+		// fmt.Println(appMeta.Network)
 	}
 	var rpcurl, rpcuser, rpcpass, rpcport string
 
-	key := string(appName) + "_RPCURL"
+	key := string(appMeta.Network) + "_RPCURL"
 	// fmt.Println(key)
 	_, ok := os.LookupEnv(key)
 	if !ok {
 		// fmt.Printf("%s not set\n", key)
 		// Try to get RPC info from local default directory for set blockchain
-		rpcuser, rpcpass, rpcport = AppRPCInfo(string(appName))
+		rpcuser, rpcpass, rpcport = AppRPCInfo(appMeta)
 		rpcurl = `http://127.0.0.1:`
 	} else {
 		// fmt.Printf("%s=%s\n", key, val)
-		rpcurl = os.Getenv(string(appName) + "_RPCURL")
-		rpcuser = os.Getenv(string(appName) + "_RPCUSER")
-		rpcpass = os.Getenv(string(appName) + "_RPCPASS")
-		rpcport = os.Getenv(string(appName) + "_RPCPORT")
+		rpcurl = os.Getenv(string(appMeta.Network) + "_RPCURL")
+		rpcuser = os.Getenv(string(appMeta.Network) + "_RPCUSER")
+		rpcpass = os.Getenv(string(appMeta.Network) + "_RPCPASS")
+		rpcport = os.Getenv(string(appMeta.Network) + "_RPCPORT")
 	}
 
 	// fmt.Printf(" %s\n %s\n %s\n %s\n", rpcurl, rpcuser, rpcpass, rpcport)
@@ -106,7 +106,9 @@ func (appName AppType) APICall(q *APIQuery) string {
 
 	if rpcuser == "" && rpcpass == "" && rpcport == "" {
 		// fmt.Println("EMPTY RPC INFO!")
-		return "EMPTY RPC INFO!"
+		fmt.Printf("Unable to read or find RPC info for the Network/Blockchain being used by Khoji.\nPlease make sure you have configured config.ini properly.\nIf you still having issues, please contact Khoji developers.\n")
+		os.Exit(1)
+		// return "EMPTY RPC INFO!"
 	}
 
 	client := &http.Client{
@@ -159,7 +161,7 @@ func (appName AppType) APICall(q *APIQuery) string {
 	bodyText, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.Println(resp)
-		log.Fatalf("==> Error reading API response body for - %v: %v", appName, err)
+		log.Fatalf("==> Error reading API response body for - %v: %v", appMeta.Network, err)
 	}
 
 	if len(bodyText) == 0 {
@@ -192,7 +194,9 @@ func (appName AppType) APICall(q *APIQuery) string {
 }
 
 // RPCResultMap using golang's own http package
-func (appName AppType) RPCResultMap(method string, params interface{}) (interface{}, error) {
+func (appMeta AppMetaData) RPCResultMap(method string, params interface{}) (interface{}, error) {
+
+	// fmt.Println("RPCResultMap appMeta", appMeta)
 
 	// fmt.Printf("params -- %+v\n", params)
 
@@ -205,7 +209,7 @@ func (appName AppType) RPCResultMap(method string, params interface{}) (interfac
 	}
 	// fmt.Printf("%+v\n", query)
 
-	getJSON := appName.APICall(&query)
+	getJSON := appMeta.APICall(&query)
 	if getJSON == "EMPTY RPC INFO" {
 		fmt.Println("EMPTY RPC INFO")
 		return nil, errors.New("EMPTY RPC INFO")
