@@ -43,6 +43,7 @@ func AppRPCInfo(appName string) (string, string, string) {
 	} else {
 		appConf = filepath.Join(appDir, strings.ToUpper(appName)+`.conf`)
 	}
+	fmt.Println("appConf", appConf)
 
 	confdata, err := ioutil.ReadFile(appConf)
 	if err != nil {
