@@ -13,7 +13,6 @@
 package utils
 
 import (
-	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -46,7 +45,6 @@ func AppRPCInfo(appName string) (string, string, string) {
 			appConf = filepath.Join(appDir, strings.ToUpper(appName)+`.conf`)
 		}
 	}
-	fmt.Println("appConf", appConf)
 
 	confdata, err := ioutil.ReadFile(appConf)
 	if err != nil {
