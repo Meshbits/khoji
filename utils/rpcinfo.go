@@ -30,14 +30,8 @@ func BytesToString(data []byte) string {
 // AppRPCInfo returns RPC username, password, port info for a specified Komodo Assetchain (Antara smartchain)
 func AppRPCInfo(appName string) (string, string, string) {
 	appDir := AppDataDir(appName, false)
-	fmt.Println("appDir:", appDir)
 
 	var appConf string
-	fmt.Println("appName before:", appName)
-	if strings.ToLower(appName) == "vrsctest" {
-		appName = strings.ToLower(appName)
-	}
-	fmt.Println("appName after:", appName)
 
 	if strings.ToLower(appName) == "komodo" || strings.ToLower(appName) == ".komodo" {
 		if runtime.GOOS == "darwin" {
@@ -46,7 +40,11 @@ func AppRPCInfo(appName string) (string, string, string) {
 			appConf = filepath.Join(appDir, strings.ToLower(appName)+`.conf`)
 		}
 	} else {
-		appConf = filepath.Join(appDir, strings.ToUpper(appName)+`.conf`)
+		if strings.ToLower(appName) == "vrsctest" {
+			appConf = filepath.Join(appDir, strings.ToLower(appName)+`.conf`)
+		} else {
+			appConf = filepath.Join(appDir, strings.ToUpper(appName)+`.conf`)
+		}
 	}
 	fmt.Println("appConf", appConf)
 
