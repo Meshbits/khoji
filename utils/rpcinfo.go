@@ -13,6 +13,7 @@
 package utils
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -29,6 +30,7 @@ func BytesToString(data []byte) string {
 // AppRPCInfo returns RPC username, password, port info for a specified Komodo Assetchain (Antara smartchain)
 func AppRPCInfo(appName string) (string, string, string) {
 	appDir := AppDataDir(appName, false)
+	fmt.Println("appDir:", appDir)
 
 	var appConf string
 
