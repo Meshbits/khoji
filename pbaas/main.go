@@ -27,6 +27,15 @@ func main() {
 		IsPBaaS: true,
 		PBaaS:   `3e76382e8354715b3f0be56608c112174baaf554`,
 	}
+	if appMeta.IsPBaaS == true {
+		fmt.Println("IsPBaaS:", appMeta.IsPBaaS)
+		fmt.Println("Returning data directory and RPC info for PBaaS chain.")
+		fmt.Println("======================================================")
+	} else {
+		fmt.Println("IsPBaaS:", appMeta.IsPBaaS)
+		fmt.Printf("Returning data directory and RPC info for %v network.\n", appMeta.Network)
+		fmt.Println("======================================================")
+	}
 	appDir := utils.AppDataDir(appMeta)
 	fmt.Println("appDir:", appDir)
 
