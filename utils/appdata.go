@@ -32,7 +32,11 @@ func appDataDir(goos, appName string, roaming bool) string {
 	}
 
 	if strings.ToLower(appName) != "komodo" || strings.ToLower(appName) != strings.TrimPrefix(strings.ToLower(appName), ".") {
-		appName = ".komodo/" + strings.ToUpper(appName)
+		if strings.ToLower(appName) == "vrsctest" {
+			appName = ".komodo/" + strings.ToLower(appName)
+		} else {
+			appName = ".komodo/" + strings.ToUpper(appName)
+		}
 	}
 
 	// The caller really shouldn't prepend the appName with a period, but
