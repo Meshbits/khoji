@@ -29,7 +29,7 @@
   }
 </script>
 
-<style>
+<style scoped>
   .blocks-table tbody tr td:nth-child(2) {
     text-align: left;
     padding-left: 5%;

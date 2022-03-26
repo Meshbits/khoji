@@ -1,5 +1,5 @@
 <template>
-  <div style="margin-top: 30px" v-if="networkInfo !== null">
+  <div class="networks-table" v-if="networkInfo !== null">
     <h4>Network Info</h4>
     <table class="table b-table table-striped table-hover text-left">
       <tbody>
@@ -71,5 +71,8 @@
 <style scoped>
   .text-left {
     text-align: left;
+  }
+  .networks-table {
+    margin-top: 30px;
   }
 </style>

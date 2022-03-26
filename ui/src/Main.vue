@@ -10,6 +10,7 @@
           <TransactionsTable />
         </div>
       </div>
+      <IdentitiesTable />
       <NetworkInfoTable />
     </div>
   </div>
@@ -19,12 +20,14 @@
 import BlocksTable from './components/BlocksTable.vue'
 import TransactionsTable from './components/TransactionsTable.vue'
 import NetworkInfoTable from './components/NetworkInfoTable.vue'
+import IdentitiesTable from './components/IdentitiesTable.vue'
 
 export default {
   name: 'App',
   components: {
     BlocksTable,
     TransactionsTable,
+    IdentitiesTable,
     NetworkInfoTable
   }
 }
