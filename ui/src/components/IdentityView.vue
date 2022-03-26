@@ -54,8 +54,8 @@
 
   export default {
     computed: {
-      hash() {
-        return this.$route.params.hash;
+      name() {
+        return this.$route.params.name;
       },
     },
     data() {
@@ -69,7 +69,7 @@
     methods: {
       fetchData () {
         axios
-          .get(`${apiURL}/identity/${this.$route.params.hash}`)
+          .get(`${apiURL}/identity/${this.$route.params.name}`)
           .then(response => (this.identityDetails = response.data));
       }
     },

@@ -25,7 +25,7 @@ const routes = [
     path: "/transaction/:hash",
     component: TransactionView,
   }, {
-    path: "/identity/:hash",
+    path: "/identity/:name",
     component: IdentityView,
   }, {
     path: "/address/:address",
