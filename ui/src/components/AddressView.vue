@@ -3,67 +3,69 @@
     <h4 class="title">Address Details</h4>
     {{ address }}
     <h5 class="balance">Balance: {{ balance }} VRSCTEST</h5>
-    <h5>Transactions</h5>
-    <table v-for="transactionDetails in transactions" :key="transactionDetails.hash" class="transacction-details-small margin-top table b-table table-striped table-hover text-left">
-      <tbody>
-        <tr>
-          <td>
-            Height
-          </td>
-          <td>
-            <router-link :to="{ path: '/block/' + transactionDetails.blockHeight }">{{ transactionDetails.blockHeight }}</router-link>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            Block hash
-          </td>
-          <td>
-            <router-link :to="{ path: '/block/' + transactionDetails.blockHeight }">{{ transactionDetails.blockHash }}</router-link>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            Time
-          </td>
-          <td>
-            {{ transactionDetails.timestamp }}
-          </td>
-        </tr>
-        <tr>
-          <td>
-            Type
-          </td>
-          <td>
-            {{ transactionDetails.type }}
-          </td>
-        </tr>
-        <tr>
-          <td>
-            Version
-          </td>
-          <td>
-            {{ transactionDetails.version }}
-          </td>
-        </tr>
-        <!--tr>
-          <td>
-            Inputs
-          </td>
-          <td>
-            <pre>{{ JSON.stringify(transactionDetails.vin, null, 2) }}</pre>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            Outputs
-          </td>
-          <td>
-            <pre>{{ JSON.stringify(transactionDetails.vout, null, 2) }}</pre>
-          </td>
-        </tr-->
-      </tbody>
-    </table>
+    <div v-if="transactions">
+      <h5>Transactions</h5>
+      <table v-for="transactionDetails in transactions" :key="transactionDetails.hash" class="transacction-details-small margin-top table b-table table-striped table-hover text-left">
+        <tbody>
+          <tr>
+            <td>
+              Height
+            </td>
+            <td>
+              <router-link :to="{ path: '/block/' + transactionDetails.blockHeight }">{{ transactionDetails.blockHeight }}</router-link>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              Block hash
+            </td>
+            <td>
+              <router-link :to="{ path: '/block/' + transactionDetails.blockHeight }">{{ transactionDetails.blockHash }}</router-link>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              Time
+            </td>
+            <td>
+              {{ transactionDetails.timestamp }}
+            </td>
+          </tr>
+          <tr>
+            <td>
+              Type
+            </td>
+            <td>
+              {{ transactionDetails.type }}
+            </td>
+          </tr>
+          <tr>
+            <td>
+              Version
+            </td>
+            <td>
+              {{ transactionDetails.version }}
+            </td>
+          </tr>
+          <!--tr>
+            <td>
+              Inputs
+            </td>
+            <td>
+              <pre>{{ JSON.stringify(transactionDetails.vin, null, 2) }}</pre>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              Outputs
+            </td>
+            <td>
+              <pre>{{ JSON.stringify(transactionDetails.vout, null, 2) }}</pre>
+            </td>
+          </tr-->
+        </tbody>
+      </table>
+    </div>
   </div>
 </template>
 

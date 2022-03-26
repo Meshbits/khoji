@@ -29,10 +29,10 @@
         </tr>
         <tr>
           <td>
-            Next block
+            Merkle root
           </td>
           <td>
-            {{ blockInfo.nextBlock }}
+            {{ blockInfo.merkleRoot }}
           </td>
         </tr>
         <tr>
@@ -57,6 +57,14 @@
       <router-link :to="{ path: '/block/' + (Number(this.height) - 1) }" class="padding-right">Prev block</router-link>
       <router-link :to="{ path: '/block/' + (Number(this.height) + 1) }">Next block</router-link>
     </div>
+    <div v-if="blockInfo.transactions && blockInfo.transactions.length" class="block-transactions">
+      <h4>Transactions</h4>
+      <b-table striped hover :items="blockInfo.transactions" :fields="transactionFields" class="transactions-table">
+        <template #cell(txid)="data">
+          <router-link :to="{ path: '/transaction/' + data.value }">{{ data.value }}</router-link>
+        </template>
+      </b-table>
+    </div>
   </div>
 </template>
 
@@ -72,6 +80,7 @@
     },
     data() {
       return {
+        transactionFields: ['txid', 'value'],
         blockInfo: {},
       }
     },
@@ -79,10 +88,38 @@
       '$route': 'fetchData'
     },
     methods: {
+      transformBlockTransactions(txs) {
+        for (let i = 0; i < txs.length; i++) {
+          let vinSum = 0, voutSum = 0;
+
+          for (let j = 0; j < txs[i].vin.length; j++) {
+            if (txs[i].vin[j].value) {
+              vinSum += txs[i].vin[j].value;
+            }
+          }
+
+          for (let j = 0; j < txs[i].vout.length; j++) {
+            if (txs[i].vout[j].value) {
+              voutSum += txs[i].vout[j].value;
+            }
+          }
+
+          txs[i].vinSum = vinSum;
+          txs[i].value = voutSum;
+        }
+
+        return txs;
+      },
       fetchData () {
         axios
           .get(`${apiURL}/block/${this.$route.params.height}`)
-          .then(response => (this.blockInfo = response.data));
+          .then(response => {
+            this.blockInfo = response.data;
+
+            if (this.blockInfo.transactions) {
+              this.blockInfo.transactions = this.transformBlockTransactions(response.data.transactions);
+            }
+          });
       }
     },
     mounted () {
@@ -97,5 +134,8 @@
   }
   .padding-right {
     padding-right: 50px;
+  }
+  .block-transactions {
+    margin-top: 50px;
   }
 </style>
