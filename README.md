@@ -1,5 +1,5 @@
 # Khoji Explorer
- Blockchain Explorer for Komodo Platform and it's ecosystem smartchains
+ Blockchain Explorer for VerusCoin and it's ecosystem chains
 
 
 # About codebase of Khoji Explorer
@@ -8,32 +8,34 @@ Back in 2017-2018, lustro hosted explorer for Komodo blockchain under domain htt
 
 I guess since nobody at that moment had required skillset to set this up for Komodo, and the team was already busy with existing work load it sat in our archives until recently. Over these years, I learned and practiced a bit on Go language and recently explored it's codebase, and made few changes to it to make it work.
 
-So, the code in `syncblocks.go` is mostly from the original zcha.in explorer's files, with comments added to the code everywhere possible for whatever I could understand in the code, along with the variable and function name changes through out the file. I changed some parts of checking the new blocks adding to the local blockchain and triggiering the sync function of that data with RethinkDB database.
+So, the code in `main.go` is mostly from the original zcha.in explorer's files, with comments added to the code everywhere possible for whatever I could understand in the code, along with the variable and function name changes through out the file. I changed some parts of checking the new blocks adding to the local blockchain and triggiering the sync function of that data with RethinkDB database.
 
 Through my [kmdgo](https://github.com/satindergrewal/kmdgo) go package for Komodo Platform toolset I also added the ability to specify Komodo and it's ecosystem smartchains right at the command line parameters, and not needing to edit or supply any RPC information inside block explorer's code.
 
 # Requirements
 
-- Go 1.14+
-- RethinkDB
-- Git
-- Komomod or Verus blockchain daemon
+- [Go](https://golang.org/doc/install) 1.14+
+- [RethinkDB](https://rethinkdb.com/docs/install/)
+- [Git](https://git-scm.com/)
+- [verusd](https://github.com/VerusCoin/VerusCoin/releases)
 
 #### Dependencies
 
-- kmdgo go package
-- saplinglib go package
-- RethinkDB go driver package
+- [RethinkDB](https://github.com/rethinkdb/rethinkdb-go) go driver package
+- Git
+- Make tools (`automake`, `make` etc.)
 
 # Install instructions
 
-#### Install Go on your system
+### Install Go on your system
 
 On Ubuntu can follow this guide: https://github.com/golang/go/wiki/Ubuntu
 
 ```bash
-sudo add-apt-repository ppa:longsleep/golang-backports
 sudo apt update
+sudo apt install make git
+sudo apt-get install software-properties-common
+sudo add-apt-repository ppa:longsleep/golang-backports
 sudo apt install golang-go
 ```
 
@@ -41,160 +43,178 @@ On Mac can install Go using brew.
 
 ```bash
 brew update
-brew install go
+brew install git go
 ```
 
-#### Install RethinkDB
+### Install RethinkDB
 
 Follow RethinkDB install instructions from it's official source: https://rethinkdb.com/docs/install/
 
-#### Install saplinglib
+On Ubuntu you can install using following instructions:
 
-Installing and setting saplinglib, so you have to get that package and set environment variables.
-
-For Linux setup these environment variables:
-
-```bash
-export CGO_CFLAGS="-I$HOME/go/src/github.com/satindergrewal/saplinglib/src/"
-export CGO_LDFLAGS="-L$HOME/go/src/github.com/satindergrewal/saplinglib/dist/linux -lsaplinglib -lpthread -ldl -lm"
+```shell
+source /etc/lsb-release && echo "deb https://download.rethinkdb.com/repository/ubuntu-$DISTRIB_CODENAME $DISTRIB_CODENAME main" | sudo tee /etc/apt/sources.list.d/rethinkdb.list
+wget -qO- https://download.rethinkdb.com/repository/raw/pubkey.gpg | sudo apt-key add -
+sudo apt-get update
+sudo apt-get install rethinkdb
 ```
 
-For MacOS setup these environment variables:
+On MacOS can install using brew:
 
-```bash
-export CGO_CFLAGS="-I$HOME/go/src/github.com/satindergrewal/saplinglib/src/"
-export CGO_LDFLAGS="-L$HOME/go/src/github.com/satindergrewal/saplinglib/dist/darwin -lsaplinglib -framework Security"
+```shell
+brew update && brew install rethinkdb
 ```
 
-For MacOS ARM64 setup these environment variables:
+## Setting up blockchain API
 
-```bash
-export CGO_CFLAGS="-I$HOME/go/src/github.com/satindergrewal/saplinglib/src/"
-export CGO_LDFLAGS="-L$HOME/go/src/github.com/satindergrewal/saplinglib/dist/darwin_arm64 -lsaplinglib -framework Security"
-```
+The blockchain networks supported by Khoji usually gets configured automatically with the required settings, but make sure to have the following settings in `.conf` file of the blockchain network you intend to use with Khoji:
 
-For MingW cross-platform windows setup these environment variables:
-
-```bash
-export CGO_CFLAGS="-I$HOME/go/src/github.com/satindergrewal/saplinglib/src/"
-export CGO_LDFLAGS="-L$HOME/go/src/github.com/satindergrewal/saplinglib/dist/win64 -lsaplinglib -lws2_32 -luserenv"
-export CC="x86_64-w64-mingw32-gcc"
-```
-
-Now fetch go package:
-
-```bash
-go get -u github.com/satindergrewal/saplinglib
-```
-
-#### Install kmdgo
-
-```bash
-go get -u github.com/satindergrewal/kmdgo
-```
-
-#### Install RethinkDB driver for Go
-
-```bash
-go get -u gopkg.in/rethinkdb/rethinkdb-go.v6
-```
-
-#### Installing khoji explorer
-
-Clone khoji source code to your machine
-
-```bash
-git clone https://github.com/meshbits/khoji.git
-cd khoji
-```
-
-Start RethinkDB. It will create the database directory `rethinkdb_data` where you execute the `rethinkdb` command.
-
-```bash
-rethinkdb
-```
-
-Create the database for explorer. For example, creating database for veruscoin with the DB name "vrsc":
-
-```bash
-go run createdb/createdb.go -dbname vrsc
-```
-
-It will output bunch of lines similar to this:
-```bash
-*** Create table result: ***
-{"Errors":0,"Inserted":0,"Updated":0,"Unchanged":0,"Replaced":0,"Renamed":0,"Skipped":0,"Deleted":0,"Created":1,"DBsCreated":0,"TablesCreated":0,"Dropped":0,"DBsDropped":0,"TablesDropped":0,"GeneratedKeys":null,"FirstError":"","ConfigChanges":null,"Changes":null}
-```
-
-If you see similar outputs, that means it has created the dabase successfully.
-You can also check the database by opening http://localhost:8080 in your browser.
-
-#### Installing Komodo or Veruscoin daemon
-
-You can either run `komodod` or `verusd` which is pre-compiled and you just run the blockchain daemon like usual and sync it fully on your machine via command line, or even using Verus Desktop, and start blockchain daemons with full sync mode from it. Make sure it is not running as light wallet.
-
-My copy of VRSC.conf looks like this:
-```
-rpcuser=user2213847568121
-rpcpassword=passcd3dbbf76467e1b6c04adc51e2289af83c0c19394878s7tfa65509785649aecd44c745
-rpcport=27486
+```shell
+rpcuser=your_rpc_username
+rpcpassword=your_rpc_password
+rpcport=your_rpc_port
 server=1
 txindex=1
-rpcworkqueue=256
 rpcallowip=127.0.0.1
-rpchost=127.0.0.1
 ```
 
-#### Initiating blockchain sync with RethinkdDB database
-
-You can check help for the command line parameters like this:
-```bash
-$ go run syncblocks.go --help
-Usage of /var/folders/67/mw860sbd1s55w43jy4r8vgvw0000gn/T/go-build362506638/b001/exe/syncblocks:
-  -chain komodo
-        Define appname variable. The name value must be the matching value of it's data directory name. Example Komodo's data directory is komodo, VerusCoin's data directory is `VRSC` and so on. (default "VRSC")
-  -dbname string
-        Rethink database name (default "vrsc")
-```
-
-So, assuming you have the `verusd` or Verus Desktop running with full blockchain synced on your machine we can proceed with executing the `sync blockchain` command:
+And in case you using remote node for blockchain API, then make sure to update the value for `rpcallowip`. Documentation from Bitcoin says this about it's settings:
 
 ```bash
-go run syncblocks.go -chain vrsc -dbname vrsc
+# server=1 tells Bitcoin-Qt to accept JSON-RPC commands.
+# it is also read by bitcoind to determine if RPC should be enabled
+#rpcallowip=10.1.1.34/255.255.255.0
+#rpcallowip=1.2.3.4/24
+#rpcallowip=2001:db8:85a3:0:0:8a2e:370:7334/96
 ```
 
-The above should start syncing blockchain data with the database, which can be queried via RethinkDB's data explorer at http://localhost:8080/#dataexplorer.
+## Setting up Khoji
 
-The example DB queries can be found in the bottom of file `syncblocks.go`.
+Once you are ready with the Golang installed for your OS, and RethinkDB service started, follow these steps to build `khoji`:
 
-Hope this helps install and testing this explorer.
+```shell
+git clone https://github.com/meshbits/khoji.git
+cd khoji
+make
+```
 
-# Features
+If successfull you will see `khoji` executable binary for your OS inside root directory of `khoji`.
 
- - This code is tested mostly with the VRSCTEST network of [Veruscoin](http://github.com/veruscoin/).
- - VerusID is already supported, and it has it's own table data created in database.
+Make copy of `config.ini.sample` as `config.ini`, and configure `CHAIN_NAME`
+
+```shell
+cp -av config.ini.sample config.ini
+```
+
+Open `config.ini` file in text editor and change value for `CHAIN_NAME` from `VRSCTEST` to the chain name you are going to run this explorer for.
+If testing using `VRSCTEST` chain, just leave the changes as is and proceed with next steps.
+If using for example Veruscoin blockchain's mainnet then change it to `VRSC`.
+
+If you are running RethinkDB locally by executing the command `rethinkdb` in another terminal, then leave the Database section in `config.ini` file as is.
+Otherwise, change the IP address and/or port.
+
+You can select the database name for block explorer to setup and use by Khoji by setting up the value for `RDB_DB` under `DATABASE` section of `config.ini`.
+
+So, if for example I'm using `VRSC` mainnet, I will use the following `config.ini` running local instance of RethinkDB:
+
+```ini
+[BLOCKCHAIN]
+
+### Define chain name and it's RPC API details. The name value must be the matching value of it's data directory name.
+### Example VerusCoin's Test Network's data directory is `VRSCTEST` and so on.
+CHAIN_NAME = VRSC
+
+### If you are using remote node for blockchain, then please speciffy it's RPC details
+### Make sure to uncomment by removing ; from the variables to enable these settings
+###
+### Example if you are using remote blockchain API from IP 192.168.1.100 then use that IP for RPC_IP
+; RPC_IP = "127.0.0.1"
+
+### Use RPC API access details from config file from the remote blockchain node
+; RPC_USER = "CHANGE RPC USER HERE"
+; RPC_PASS = "CHANGE RPC PASSWORD HERE"
+; RPC_PORT = "CHANGE RPC PORT HERE"
+
+[DATABASE]
+### Rethink database name to create and setup with all tables required for explorer
+RDB_DB = VRSC
+RDB_IP = 127.0.0.1
+RDB_PORT = 28015
+```
+
+Now you can execute `khoji` to start explorer. It will setup Rethink database and start synchronising explorer data with blockchain network.
+
+```bash
+./khoji
+```
 
 # TODO
 
-- [ ]	Make Explorer's RPC API using database
+- [x]	Make Explorer's RPC API using database
 - [ ]	Web Graphical Interface for Explorer
 - [ ]	Make explorer's gRPC API using database
 
-# Troubleshooting
 
-#### working directory is not part of a module 
+## Khoji logs
 
-```bash
-➜  khoji git:(main) go run createdb/createdb.go -dbname vrsctest
-createdb/createdb.go:20:2: no required module provides package gopkg.in/rethinkdb/rethinkdb-go.v6: working directory is not part of a module
+If starting Khoji it will only show sync progress in cosole output.
+To view the detailed logs you can check `khoji.log` file in the same directory where you executed `khoji` binary from.
+Following example command on Linux/OSX will show updated prints being pushed to `khoji.log` file:
+
+```shell
+tail -f khoji.log
 ```
 
-To solve this issue, change the `GO111MODULE` from `on` to `auto`. You can either execute the `go run` or `go build` etc. commands with `GO111MODULE=auto go ...` or export this environment variable in your terminal session temporarily and then execute the `go` commands as mentioned in install/build/run instructions. For example with command:
-
-```bash
-export GO111MODULE=auto
+And Windows users can use the following command in PowerShell to check live khoji logs:
+```shell
+Get-Content .\khoji.log -Wait
 ```
 
-# Known Issues
+you can press CTRL+C to cancel `tail` or `Get-Content` command's output.
 
-- **Wrong balance of Verus blockchain:** At the moment, the balance of VRSC blockchain doesn't show correct in VRSCTEST network, mostly because of needing to do some extra code conditions which are spcific to Verus's DeFi features. **I need help fixing this issue, if anyone can offer that help please.**
+# Making a release build
+
+Release builds can be made cross platform.
+Means you can build Mac OS build on Linux, and Linux builds on Mac OS, thanks to Go's cross-compilation capabilities.
+
+Execute the following `make` command from the root directory of Khoji source code to make distributable archives of Khoji:
+
+```bash
+make dist
+```
+
+After this command you'll find a zipped copy of Linux, MacOS, MacOS ARM64 and Windows distributable file under `dist/` directory.
+
+### Clean build
+
+To clean all compiled files execute the following command:
+
+```shell
+make clean
+```
+
+It will delete all dist and binary files the build commands created.
+
+
+# Khoji Explorer API
+
+_This is just a quick and short information about supported APIs by Khoji explorer._
+_More detailed documentation will be added soon._
+
+API is accessible on port 3334 via http://localhost:3334.
+
+Following are the APIs which are supported:
+
+```
+/api/v1/network
+/api/v1/balance/{address}
+/api/v1/transactions/{address}
+/api/v1/transactions/last
+/api/v1/transaction/{hash}
+/api/v1/block/{height}
+/api/v1/blocks/{page}
+/api/v1/blocks/last
+/api/v1/identity/{name}
+/api/v1/identities/{page}
+/api/v1/richlist/{page}
+```

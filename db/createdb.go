@@ -10,52 +10,55 @@
 //
 // Removal or modification of this copyright notice is prohibited.
 
-package main
+package db
 
 import (
 	"encoding/json"
-	"flag"
 	"fmt"
+	"log"
+	"os"
 
+	"gopkg.in/ini.v1"
 	r "gopkg.in/rethinkdb/rethinkdb-go.v6"
 )
-
-var session *r.Session
 
 // Rethink database name
 var rDB string
 
 func init() {
+	// fmt.Println("db")
+
 	var err error
-	session, err = r.Connect(r.ConnectOpts{
-		Address:  "localhost:28015",
-		Database: rDB,
-	})
+	cfg, err := ini.Load("config.ini")
 	if err != nil {
-		fmt.Println(err)
-		return
+		fmt.Printf("Fail to read file: %v", err)
+		os.Exit(1)
 	}
+	rDB = cfg.Section("DATABASE").Key("RDB_DB").String()
 }
 
-func main() {
-
-	rDBName := flag.String("dbname", "", "Rethink database name")
-	flag.Parse()
-	// fmt.Println("dbname:", *rDBName)
-	rDB = *rDBName
-
+func CreateDb() {
 	if rDB == "" {
 		fmt.Println("Please select dbname")
 		return
 	}
 
-	dropDB(rDB)
+	// dropDB(rDB)
 
-	createDb, err := r.DBCreate(rDB).Run(session)
-	fmt.Println(err)
-	fmt.Println(createDb)
+	createDb, _ := r.DBCreate(rDB).Run(Session)
+	// if err != nil {
+	// 	fmt.Println(err)
+	// }
+	// fmt.Println(createDb)
+	if createDb == nil {
+		fmt.Println("Database already exists:", rDB)
+		return
+	}
+	if getObj(createDb) == "{}" {
+		log.Println("Database created:", rDB)
+	}
 
-	// res, err := r.DB(rDB).Table("network").Changes().Run(session)
+	// res, err := r.DB(rDB).Table("network").Changes().Run(Session)
 
 	createTable(`blocks`, `hash`)
 	createIndex(`blocks`, `height`)
@@ -84,45 +87,53 @@ func main() {
 	createIndex(`sharedvout`, `hashvout`)
 }
 
-func dropDB(db string) {
-	result, err := r.DBDrop(db).Run(session)
+func DropDB() {
+	_, err := r.DBDrop(rDB).Run(Session)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	printStr("*** DB Drop result: ***")
-	printObj(result)
-	printStr("\n")
+	log.Println("Database deleted:", rDB)
+	// printStr("*** DB Drop result: ***")
+	// printObj(result)
+	// printStr("\n")
 }
 
 func createTable(table, _primaryKey string) {
-	result, err := r.DB(rDB).TableCreate(table, r.TableCreateOpts{PrimaryKey: _primaryKey}).RunWrite(session)
+	_, err := r.DB(rDB).TableCreate(table, r.TableCreateOpts{PrimaryKey: _primaryKey}).RunWrite(Session)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	printStr("*** Create table result: ***")
-	printObj(result)
-	printStr("\n")
+	log.Println("Table created:", table)
+	// printStr("*** Create table result: ***")
+	// printObj(result)
+	// printStr("\n")
 }
 
 func createIndex(table, index string) {
-	result, err := r.DB(rDB).Table(table).IndexCreate(index).RunWrite(session)
+	_, err := r.DB(rDB).Table(table).IndexCreate(index).RunWrite(Session)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	printStr("*** Create table result: ***")
-	printObj(result)
-	printStr("\n")
+	log.Printf("Index created for table - %v: %v\n", table, index)
+	// printStr("*** Create table result: ***")
+	// printObj(result)
+	// printStr("\n")
 }
 
-func printStr(v string) {
-	fmt.Println(v)
-}
+// func printStr(v string) {
+// 	fmt.Println(v)
+// }
 
-func printObj(v interface{}) {
+// func printObj(v interface{}) {
+// 	vBytes, _ := json.Marshal(v)
+// 	fmt.Println(string(vBytes))
+// }
+
+func getObj(v interface{}) string {
 	vBytes, _ := json.Marshal(v)
-	fmt.Println(string(vBytes))
+	return string(vBytes)
 }

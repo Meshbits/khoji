@@ -1,8 +1,9 @@
-// ref: https://github.com/KomodoPlatform/etherscan-mm2-proxy/blob/master/http/http.go
+// https://github.com/fasthttp/router/tree/master/_examples/basic
 package http
 
 import (
 	"fmt"
+
 	"github.com/valyala/fasthttp"
 )
 
