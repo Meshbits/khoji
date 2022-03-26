@@ -8,6 +8,9 @@
       <template #cell(blockheight)="data">
         <router-link :to="{ path: '/block/' + data.value }">{{ data.value }}</router-link>
       </template>
+      <template #cell(identityaddress)="data">
+        <router-link :to="{ path: '/address/' + data.value }">{{ data.value }}</router-link>
+      </template>
       <template #cell(txid)="data">
         <router-link :to="{ path: '/transaction/' + data.value }">{{ data.value.substr(0, 4) }}...{{ data.value.substr(data.value.length - 4, 4) }}</router-link>
       </template>

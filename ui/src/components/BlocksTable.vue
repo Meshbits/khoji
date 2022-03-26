@@ -5,6 +5,9 @@
       <template #cell(height)="data">
         <router-link :to="{ path: '/block/' + data.value }">{{ data.value }}</router-link>
       </template>
+      <template #cell(miner)="data">
+        <router-link :to="{ path: '/address/' + data.value }">{{ data.value }}</router-link>
+      </template>
     </b-table>
   </div>
 </template>
