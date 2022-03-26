@@ -353,6 +353,39 @@ func getIdentitiesSlice(ctx *fasthttp.RequestCtx) {
 	}
 }
 
+func getLastIdentities(ctx *fasthttp.RequestCtx) {
+	var pageInt = 0
+
+	res1, err1 := r.DB(rDB).Table("identities").OrderBy(r.OrderByOpts{Index: r.Desc("blockheight")}).Slice(pageInt*MAX_ITEMS_PP, (pageInt+1)*MAX_ITEMS_PP).Run(session)
+	if err1 != nil {
+		log.Panicf("Failed to get last identities from DB: %v", err1)
+	}
+	// log.Printf("query res %v", res1)
+	var row []interface{}
+	err2 := res1.All(&row)
+	if err2 == r.ErrEmptyResult {
+		fmt.Println("row not found")
+	}
+	if err2 != nil {
+		fmt.Println(err2)
+	}
+
+	if row != nil {
+		ctx.SetStatusCode(200)
+		jsonData, _ := json.Marshal(row)
+		ctx.SetBodyString(string(jsonData))
+		ctx.SetContentType("application/json")
+	} else {
+		ctx.SetStatusCode(200)
+		jsonData, _ := json.Marshal(respErr{
+			Error: "No identities found",
+		})
+		ctx.SetStatusCode(200)
+		ctx.SetBodyString(string(jsonData))
+		ctx.SetContentType("application/json")
+	}
+}
+
 func getNetworkInfo(ctx *fasthttp.RequestCtx) {
 	res1, err1 := r.DB(rDB).Table("network").Run(session)
 	if err1 != nil {
@@ -460,7 +493,7 @@ func getLastBlocks(ctx *fasthttp.RequestCtx) {
 	} else {
 		ctx.SetStatusCode(200)
 		jsonData, _ := json.Marshal(respErr{
-			Error: "Wrong page number",
+			Error: "No blocks found",
 		})
 		ctx.SetStatusCode(200)
 		ctx.SetBodyString(string(jsonData))
@@ -562,6 +595,7 @@ func InitRooter() *router.Router {
 	r.GET("/api/v1/block/{height}", setResponseHeader(getBlockInfo))
 	r.GET("/api/v1/blocks/{page}", setResponseHeader(getBlocksSlice))
 	r.GET("/api/v1/blocks/last", setResponseHeader(getLastBlocks))
+	r.GET("/api/v1/identities/last", setResponseHeader(getLastIdentities))
 	r.GET("/api/v1/identity/{name}", setResponseHeader(getIdentityDetails))
 	r.GET("/api/v1/identities/{page}", setResponseHeader(getIdentitiesSlice))
 	r.GET("/api/v1/richlist/{page}", setResponseHeader(getAccountsSlice))
