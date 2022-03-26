@@ -201,7 +201,7 @@ func getBlocksSlice(ctx *fasthttp.RequestCtx) {
 
 	log.Printf("get blocks from: %v to %v", pageInt*MAX_ITEMS_PP, (pageInt+1)*MAX_ITEMS_PP)
 
-	res1, err1 := r.DB(rDB).Table("blocks").Without("transactions", "solution").OrderBy("height").Slice(pageInt*MAX_ITEMS_PP, (pageInt+1)*MAX_ITEMS_PP).Run(session)
+	res1, err1 := r.DB(rDB).Table("blocks").OrderBy(r.OrderByOpts{Index: r.Desc("height")}).Without("transactions", "solution").Slice(pageInt*MAX_ITEMS_PP, (pageInt+1)*MAX_ITEMS_PP).Run(session)
 	if err1 != nil {
 		log.Panicf("Failed to get block info from DB: %v", err1)
 	}
@@ -320,7 +320,7 @@ func getIdentitiesSlice(ctx *fasthttp.RequestCtx) {
 
 	log.Printf("get identities from: %v to %v", pageInt*MAX_ITEMS_PP, (pageInt+1)*MAX_ITEMS_PP)
 
-	res1, err1 := r.DB(rDB).Table("identities").OrderBy("blockheight").Slice(pageInt*MAX_ITEMS_PP, (pageInt+1)*MAX_ITEMS_PP).Run(session)
+	res1, err1 := r.DB(rDB).Table("identities").OrderBy(r.OrderByOpts{Index: r.Desc("blockheight")}).Slice(pageInt*MAX_ITEMS_PP, (pageInt+1)*MAX_ITEMS_PP).Run(session)
 	if err1 != nil {
 		log.Panicf("Failed to get identities info from DB: %v", err1)
 	}
@@ -402,7 +402,7 @@ func getAccountsSlice(ctx *fasthttp.RequestCtx) {
 
 	log.Printf("get accounts from: %v to %v", pageInt*MAX_ITEMS_PP, (pageInt+1)*MAX_ITEMS_PP)
 
-	res1, err1 := r.DB(rDB).Table("accounts").OrderBy(r.Desc("balance")).Without("transactions").Slice(pageInt*MAX_ITEMS_PP, (pageInt+1)*MAX_ITEMS_PP).Run(session)
+	res1, err1 := r.DB(rDB).Table("accounts").OrderBy(r.OrderByOpts{Index: r.Desc("balance")}).Without("transactions").Slice(pageInt*MAX_ITEMS_PP, (pageInt+1)*MAX_ITEMS_PP).Run(session)
 	if err1 != nil {
 		log.Panicf("Failed to get richlist from DB: %v", err1)
 	}
@@ -438,7 +438,7 @@ func getAccountsSlice(ctx *fasthttp.RequestCtx) {
 func getLastBlocks(ctx *fasthttp.RequestCtx) {
 	var pageInt = 0
 
-	res1, err1 := r.DB(rDB).Table("blocks").Without("transactions", "solution").OrderBy(r.Desc("height")).Slice(pageInt*MAX_ITEMS_PP, (pageInt+1)*MAX_ITEMS_PP).Run(session)
+	res1, err1 := r.DB(rDB).Table("blocks").OrderBy(r.OrderByOpts{Index: r.Desc("height")}).Without("transactions", "solution").Slice(pageInt*MAX_ITEMS_PP, (pageInt+1)*MAX_ITEMS_PP).Run(session)
 	if err1 != nil {
 		log.Panicf("Failed to get last blocks from DB: %v", err1)
 	}
@@ -471,7 +471,7 @@ func getLastBlocks(ctx *fasthttp.RequestCtx) {
 func getLastTransactions(ctx *fasthttp.RequestCtx) {
 	var pageInt = 0
 
-	res1, err1 := r.DB(rDB).Table("transactions").OrderBy(r.Desc("height")).Slice(pageInt*MAX_ITEMS_PP, (pageInt+1)*MAX_ITEMS_PP).Run(session)
+	res1, err1 := r.DB(rDB).Table("transactions").OrderBy(r.OrderByOpts{Index: r.Desc("blockHeight")}).Slice(pageInt*MAX_ITEMS_PP, (pageInt+1)*MAX_ITEMS_PP).Run(session)
 	if err1 != nil {
 		log.Panicf("Failed to get last transactions from DB: %v", err1)
 	}

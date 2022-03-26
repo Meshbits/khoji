@@ -83,6 +83,7 @@ func CreateDb() {
 	createIndex(`identities`, `identityaddress`)
 	createIndex(`identities`, `parent`)
 	createIndex(`identities`, `privateaddress`)
+	createIndex(`identities`, `blockheight`)
 	createTable(`sharedvout`, `hash`)
 	createIndex(`sharedvout`, `hashvout`)
 }
