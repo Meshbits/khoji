@@ -1,7 +1,11 @@
 <template>
   <div>
     <h4>Last transactions</h4>
-    <b-table striped hover :items="transactions" :fields="fields"></b-table>
+    <b-table striped hover :items="transactions" :fields="fields">
+      <template #cell(hash)="data">
+        <router-link :to="{ path: '/transaction/' + data.value }">{{ data.value.substr(0, 4) }}...{{ data.value.substr(data.value.length - 4, 4) }}</router-link>
+      </template>
+    </b-table>
   </div>
 </template>
 
@@ -13,7 +17,7 @@
   export default {
     data() {
       return {
-        fields: ['blockHeight', 'value', 'type'],
+        fields: ['blockHeight', 'value', 'type', 'hash'],
         transactions: isMock ? transactions : null,
       }
     },
