@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div style="margin-top: 30px" v-if="networkInfo !== null">
     <h4>Network Info</h4>
     <table class="table b-table table-striped table-hover text-left">
       <tbody>
@@ -51,17 +51,18 @@
 <script>
   import axios from 'axios';
   import {networkInfo} from './mockData';
+  import {apiURL, isMock} from '../config';
 
   export default {
     data() {
       return {
         //fields: ['height', 'miner', 'timestamp'],
-        networkInfo: networkInfo,
+        networkInfo: isMock ? networkInfo : null,
       }
     },
     mounted () {
       axios
-        .get('http://localhost:3334/api/network')
+        .get(`${apiURL}/network`)
         .then(response => (this.networkInfo = response.data))
     }
   }

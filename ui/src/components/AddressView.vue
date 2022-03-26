@@ -70,7 +70,7 @@
 <script>
   import axios from 'axios';
   import {fromSats} from './math-helpers';
-  //import {networkInfo} from './mockData';
+  import {apiURL} from '../config';
 
   export default {
     computed: {
@@ -90,10 +90,10 @@
     methods: {
       fetchData () {
         axios
-          .get('http://localhost:3334/api/balance/' + this.$route.params.address)
+          .get(`${apiURL}/balance/${this.$route.params.address}`)
           .then(response => (this.balance = fromSats(response.data.Balance)));
         axios
-          .get('http://localhost:3334/api/transactions/' + this.$route.params.address)
+          .get(`${apiURL}/transactions/${this.$route.params.address}`)
           .then(response => (this.transactions = response.data));
       }
     },

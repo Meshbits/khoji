@@ -50,7 +50,7 @@
 
 <script>
   import axios from 'axios';
-  //import {networkInfo} from './mockData';
+  import {apiURL} from '../config';
 
   export default {
     computed: {
@@ -69,7 +69,7 @@
     methods: {
       fetchData () {
         axios
-          .get('http://localhost:3334/api/identity/' + this.$route.params.hash)
+          .get(`${apiURL}/identity/${this.$route.params.hash}`)
           .then(response => (this.identityDetails = response.data));
       }
     },

@@ -6,21 +6,21 @@
 </template>
 
 <script>
-  //import axios from 'axios';
+  import axios from 'axios';
   import {transactions} from './mockData';
+  import {apiURL, isMock} from '../config';
 
   export default {
     data() {
       return {
         fields: ['blockHeight', 'value', 'type'],
-        transactions: transactions,
+        transactions: isMock ? transactions : null,
       }
     },
-    // takes too long to fetch :(
-    /*mounted () {
+    mounted () {
       axios
-        .get('http://localhost:3334/api/transactions/last')
+        .get(`${apiURL}/transactions/last`)
         .then(response => (this.transactions = response.data))
-    }*/
+    }
   }
 </script>
