@@ -2,6 +2,7 @@
 package http
 
 import (
+	"bytes"
 	"fmt"
 
 	"github.com/valyala/fasthttp"
@@ -43,6 +44,6 @@ func requestHandler(ctx *fasthttp.RequestCtx) {
 
 func LaunchServer() {
 	router := InitRooter()
-	http.Handle("/", fs)
+	// http.Handle("/", fs)
 	fasthttp.ListenAndServe(":"+fmt.Sprintf("%d", 3334), router.Handler)
 }
