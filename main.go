@@ -768,11 +768,14 @@ func addUpdateIdentity(vOutData []interface{}, block map[string]interface{}) {
 	// vOutData := txData["vout"].([]interface{})
 	if len(vOutData) != 0 {
 		for _, voutv := range vOutData {
+			// fmt.Println("vOutData[i]:", vOutData[i].spentTxId)
 			scriptPubKey := voutv.(map[string]interface{})["scriptPubKey"].(map[string]interface{})
 			if scriptPubKey["identityprimary"] != nil {
 				identity := scriptPubKey["identityprimary"].(map[string]interface{})
 				// fmt.Println("Identity found!")
 				// fmt.Println(identity)
+				identityTxid := voutv.(map[string]interface{})["spentTxId"]
+				// fmt.Println("identityTxid:", identityTxid)
 				err := r.DB(rDB).Table("identities").Insert(map[string]interface{}{
 					"version":             identity["version"],
 					"flags":               identity["flags"],
@@ -789,7 +792,7 @@ func addUpdateIdentity(vOutData []interface{}, block map[string]interface{}) {
 					"firstSeen":           int64(block["time"].(float64)),
 					"lastSeen":            int64(block["time"].(float64)),
 					"blockheight":         block["height"],
-					"txid":                block["hash"],
+					"txid":                identityTxid,
 					"vout":                voutv.(map[string]interface{})["n"],
 				}, r.InsertOpts{Conflict: identityMerge}).Exec(session)
 				if err != nil {
@@ -801,6 +804,7 @@ func addUpdateIdentity(vOutData []interface{}, block map[string]interface{}) {
 			}
 		}
 	}
+	// fmt.Scanln()
 }
 
 func insertTxDB(txIndex int, txidData interface{}, block map[string]interface{}) (map[string]interface{}, []interface{}) {
