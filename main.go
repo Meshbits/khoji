@@ -382,7 +382,7 @@ func syncBlocksDB() {
 				// fmt.Scanln()
 			}
 			// forward data to identity update function to add/update identities details
-			addUpdateIdentity(vOutData, blockDetails)
+			addUpdateIdentity(vOutData, blockDetails, txData["txid"].(string))
 
 			// Process transactions from block and insert it to database table
 			// insertTxDB(txIndex, _txid, blockDetails)
@@ -763,7 +763,7 @@ func updateRecvBalances(txData, retrievedVout, block map[string]interface{}, txS
 }
 
 // Insert/Update Identity table
-func addUpdateIdentity(vOutData []interface{}, block map[string]interface{}) {
+func addUpdateIdentity(vOutData []interface{}, block map[string]interface{}, idTxid string) {
 	// txData := txidData.(map[string]interface{})
 	// vOutData := txData["vout"].([]interface{})
 	if len(vOutData) != 0 {
@@ -772,10 +772,9 @@ func addUpdateIdentity(vOutData []interface{}, block map[string]interface{}) {
 			scriptPubKey := voutv.(map[string]interface{})["scriptPubKey"].(map[string]interface{})
 			if scriptPubKey["identityprimary"] != nil {
 				identity := scriptPubKey["identityprimary"].(map[string]interface{})
-				// fmt.Println("Identity found!")
+				// fmt.Println(">>>> Identity found!", identity["name"])
 				// fmt.Println(identity)
-				identityTxid := voutv.(map[string]interface{})["spentTxId"]
-				// fmt.Println("identityTxid:", identityTxid)
+				fmt.Println("identityTxid:", idTxid)
 				err := r.DB(rDB).Table("identities").Insert(map[string]interface{}{
 					"version":             identity["version"],
 					"flags":               identity["flags"],
@@ -792,7 +791,7 @@ func addUpdateIdentity(vOutData []interface{}, block map[string]interface{}) {
 					"firstSeen":           int64(block["time"].(float64)),
 					"lastSeen":            int64(block["time"].(float64)),
 					"blockheight":         block["height"],
-					"txid":                identityTxid,
+					"txid":                idTxid,
 					"vout":                voutv.(map[string]interface{})["n"],
 				}, r.InsertOpts{Conflict: identityMerge}).Exec(session)
 				if err != nil {
