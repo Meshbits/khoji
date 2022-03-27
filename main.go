@@ -774,7 +774,7 @@ func addUpdateIdentity(vOutData []interface{}, block map[string]interface{}, idT
 				identity := scriptPubKey["identityprimary"].(map[string]interface{})
 				// fmt.Println(">>>> Identity found!", identity["name"])
 				// fmt.Println(identity)
-				fmt.Println("identityTxid:", idTxid)
+				// fmt.Println("identityTxid:", idTxid)
 				err := r.DB(rDB).Table("identities").Insert(map[string]interface{}{
 					"version":             identity["version"],
 					"flags":               identity["flags"],
