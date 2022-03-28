@@ -1104,3 +1104,6 @@ func printObj(v interface{}) {
 
 // search identities with a given matching string
 // r.db('vrsctest').table('identities').filter(function(doc){return doc('name').match("^a")}).getField('name')
+
+// search identity name with given identity address as search query
+// r.db('VRSCTEST').table('identities').filter(function(doc){return doc('identityaddress').match("iECDGNNufPkSa9aHfbnQUjvhRN6YGR8eKM")}).getField('name')
