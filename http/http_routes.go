@@ -1,12 +1,14 @@
 package http
 
 import (
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"log"
 	"os"
 	"runtime"
 	"strconv"
+	"strings"
 
 	"github.com/Meshbits/khoji/db"
 	"github.com/Meshbits/khoji/shepherd"
@@ -272,6 +274,15 @@ func getTransactionDetails(ctx *fasthttp.RequestCtx) {
 func getIdentityDetails(ctx *fasthttp.RequestCtx) {
 	name := ctx.UserValue("name").(string)
 
+	fmt.Println("name", name)
+	isHex, err := strconv.ParseUint(name, 16, 64)
+	if err != nil {
+		// s is not a valid
+		fmt.Println("n is not valid string", isHex)
+		decoded, _ := hex.DecodeString(strings.Replace(name, "%", "", -1))
+		name = string(decoded)
+	}
+
 	res1, err1 := r.DB(rDB).Table("identities").Filter(map[string]interface{}{"name": name}).Run(session)
 	if err1 != nil {
 		log.Panicf("Failed to get identity details from DB: %v", err1)
@@ -285,8 +296,6 @@ func getIdentityDetails(ctx *fasthttp.RequestCtx) {
 	if err2 != nil {
 		fmt.Println(err2)
 	}
-
-	fmt.Println("name", name)
 
 	if row != nil {
 		ctx.SetStatusCode(200)
