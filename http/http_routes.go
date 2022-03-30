@@ -280,7 +280,11 @@ func getIdentityDetails(ctx *fasthttp.RequestCtx) {
 		// s is not a valid
 		// fmt.Println("n is not valid string", isHex)
 		decoded, _ := hex.DecodeString(strings.Replace(name, "%", "", -1))
-		name = string(decoded)
+		fmt.Println("decoded", decoded)
+		// if string ends up mistakenly to this code logic, handle it
+		if len(decoded) != 0 {
+			name = string(decoded)
+		}
 	}
 
 	res1, err1 := r.DB(rDB).Table("identities").Filter(map[string]interface{}{"name": name}).Run(session)
