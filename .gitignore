@@ -20,3 +20,4 @@ khoji
 config.ini
 ui/yarn.lock
 ui/package-lock.json
+ui/ui

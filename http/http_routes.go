@@ -275,10 +275,10 @@ func getIdentityDetails(ctx *fasthttp.RequestCtx) {
 	name := ctx.UserValue("name").(string)
 
 	fmt.Println("name", name)
-	isHex, err := strconv.ParseUint(name, 16, 64)
+	_, err := strconv.ParseUint(name, 16, 64)
 	if err != nil {
 		// s is not a valid
-		fmt.Println("n is not valid string", isHex)
+		// fmt.Println("n is not valid string", isHex)
 		decoded, _ := hex.DecodeString(strings.Replace(name, "%", "", -1))
 		name = string(decoded)
 	}
@@ -609,6 +609,12 @@ func InitRooter() *router.Router {
 	r.GET("/api/v1/identities/{page}", setResponseHeader(getIdentitiesSlice))
 	r.GET("/api/v1/richlist/{page}", setResponseHeader(getAccountsSlice))
 	r.GET("/api/v1/checkupdate/{os?}/{arch?}", setResponseHeader(checkUpdate))
+
+	// Serve static UI files
+	r.ServeFiles("/css/{filepath:*}", "./ui/dist/css")
+	r.ServeFiles("/img/{filepath:*}", "./ui/dist/img")
+	r.ServeFiles("/js/{filepath:*}", "./ui/dist/js")
+	r.ServeFiles("/{filepath:*}", "./ui/dist")
 
 	return r
 }
