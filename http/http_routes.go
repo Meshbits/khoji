@@ -280,7 +280,7 @@ func getIdentityDetails(ctx *fasthttp.RequestCtx) {
 		// s is not a valid
 		// fmt.Println("n is not valid string", isHex)
 		decoded, _ := hex.DecodeString(strings.Replace(name, "%", "", -1))
-		fmt.Println("decoded", decoded)
+		// fmt.Println("decoded", decoded)
 		// if string ends up mistakenly to this code logic, handle it
 		if len(decoded) != 0 {
 			name = string(decoded)
