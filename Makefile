@@ -31,7 +31,7 @@ DIST_UNIX=khoji_unix
 DIST_UNIX_PATH=$(DIST_DIR)/$(DIST_UNIX)
 DIST_WIN=khoji_win
 DIST_WIN_PATH=$(DIST_DIR)/$(DIST_WIN)
-DIST_FILES=LICENSE README.md
+DIST_FILES=LICENSE README.md config.ini.sample
 CP_AV=cp -av
 CURL_DL=curl -LJ
 RM_RFV=rm -rfv
@@ -49,6 +49,7 @@ build:
 #	$(GITCMD) checkout $(CHECKOUT_BRANCH)
 	go mod tidy
 	$(GOBUILD) -o $(BINARY_NAME) -v
+	cd ui/ && make && cd ..
 
 clean: 
 	$(GOCLEAN)
@@ -57,6 +58,7 @@ clean:
 	rm -f $(BINARY_UNIX)
 	rm -f $(BINARY_OSX)
 	rm -f khoji.log
+	cd ui/ && make clean && cd ..
 run:
 #	$(GITCMD) checkout $(CHECKOUT_BRANCH)
 	$(GOBUILD) -o $(BINARY_NAME) -v 
@@ -71,7 +73,10 @@ build-linux:
 	$(MKDIR_P) $(DIST_UNIX_PATH)
 	go mod tidy
 	$(DEPS_LINUX) $(GOBUILD) -o $(DIST_UNIX_PATH)/$(BINARY_NAME) -v
+	cd ui/ && make && cd ..
+	$(MKDIR_P) $(DIST_UNIX_PATH)/ui
 	$(CP_AV) $(DIST_FILES) $(DIST_UNIX_PATH)
+	$(CP_AV) ui/dist $(DIST_UNIX_PATH)/ui/
 	cd $(DIST_UNIX_PATH); zip -r ../$(BINARY_NAME)_linux.zip *; ls -lha ../; pwd
 	$(RM_RFV) $(DIST_UNIX_PATH)
 	cd $(ROOT_DIR)
@@ -80,7 +85,10 @@ build-osx:
 	$(MKDIR_P) $(DIST_OSX_PATH)
 	go mod tidy
 	$(DEPS_OSX) $(GOBUILD) -o $(DIST_OSX_PATH)/$(BINARY_NAME) -v
+	cd ui/ && make && cd ..
+	$(MKDIR_P) $(DIST_OSX_PATH)/ui
 	$(CP_AV) $(DIST_FILES) $(DIST_OSX_PATH)
+	$(CP_AV) ui/dist $(DIST_OSX_PATH)/ui/
 	cd $(DIST_OSX_PATH); zip -r ../$(BINARY_NAME)_macos.zip *
 	$(RM_RFV) $(DIST_OSX_PATH)
 	cd $(ROOT_DIR)
@@ -89,7 +97,10 @@ build-osx-arm:
 	$(MKDIR_P) $(DIST_OSX_ARM_PATH)
 	go mod tidy
 	$(DEPS_OSX_ARM) $(GOBUILD) -o $(DIST_OSX_ARM_PATH)/$(BINARY_NAME) -v
+	cd ui/ && make && cd ..
+	$(MKDIR_P) $(DIST_OSX_ARM_PATH)/ui
 	$(CP_AV) $(DIST_FILES) $(DIST_OSX_ARM_PATH)
+	$(CP_AV) ui/dist $(DIST_OSX_ARM_PATH)/ui/
 	cd $(DIST_OSX_ARM_PATH); zip -r ../$(BINARY_NAME)_macos_arm64.zip *
 	$(RM_RFV) $(DIST_OSX_ARM_PATH)
 	cd $(ROOT_DIR)
@@ -98,7 +109,10 @@ build-win:
 	$(MKDIR_P) $(DIST_WIN_PATH)
 	go mod tidy
 	$(DEPS_WIN) $(GOBUILD) -o $(DIST_WIN_PATH)/$(BINARY_WIN) -v
+	cd ui/ && make && cd ..
+	$(MKDIR_P) $(DIST_WIN_PATH)/ui
 	$(CP_AV) $(DIST_FILES) $(DIST_WIN_PATH)
+	$(CP_AV) ui/dist $(DIST_WIN_PATH)/ui/
 	cd $(DIST_WIN_PATH); zip -r ../$(BINARY_NAME)_win.zip *
 	$(RM_RFV) $(DIST_WIN_PATH)
 	cd $(ROOT_DIR)
