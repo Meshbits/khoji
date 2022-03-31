@@ -83,11 +83,22 @@ func LaunchServer() {
 		}
 
 		lnTls := tls.NewListener(ln, tlsCfg)
+		for _, v := range hosts {
+			fmt.Println("-------------------------------")
+			fmt.Printf("Web UI: https://%v\n", v)
+			fmt.Printf("API: https://%v/api\n", v)
+			fmt.Println("-------------------------------")
+		}
+		fmt.Println("")
 
 		if err := fasthttp.Serve(lnTls, router.Handler); err != nil {
 			panic(err)
 		}
 	} else {
+		fmt.Println("-------------------------------")
+		fmt.Printf("Web UI: http://localhost:3334\n")
+		fmt.Printf("API: http://localhost:3334/api\n")
+		fmt.Println("-------------------------------")
 		fasthttp.ListenAndServe(":"+fmt.Sprintf("%d", 3334), router.Handler)
 	}
 
