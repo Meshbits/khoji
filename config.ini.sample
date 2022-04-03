@@ -19,3 +19,10 @@ CHAIN_NAME = VRSCTEST
 RDB_DB = vrsctest
 RDB_IP = 127.0.0.1
 RDB_PORT = 28015
+
+[SSL]
+### Enable Let's Encrypt auto certification for the DNS setup to use with Khoji explorer
+; ENABLE_AUTOCERT = false
+### Add one or more HOST entries to auto make SSL certificates and use them with Khoji explorer
+; HOST = app1.domain.com
+; HOST = app2.domain.com

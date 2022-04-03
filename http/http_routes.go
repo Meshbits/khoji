@@ -1,12 +1,14 @@
 package http
 
 import (
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"log"
 	"os"
 	"runtime"
 	"strconv"
+	"strings"
 
 	"github.com/Meshbits/khoji/db"
 	"github.com/Meshbits/khoji/shepherd"
@@ -272,6 +274,19 @@ func getTransactionDetails(ctx *fasthttp.RequestCtx) {
 func getIdentityDetails(ctx *fasthttp.RequestCtx) {
 	name := ctx.UserValue("name").(string)
 
+	fmt.Println("name", name)
+	_, err := strconv.ParseUint(name, 16, 64)
+	if err != nil {
+		// s is not a valid
+		// fmt.Println("n is not valid string", isHex)
+		decoded, _ := hex.DecodeString(strings.Replace(name, "%", "", -1))
+		// fmt.Println("decoded", decoded)
+		// if string ends up mistakenly to this code logic, handle it
+		if len(decoded) != 0 {
+			name = string(decoded)
+		}
+	}
+
 	res1, err1 := r.DB(rDB).Table("identities").Filter(map[string]interface{}{"name": name}).Run(session)
 	if err1 != nil {
 		log.Panicf("Failed to get identity details from DB: %v", err1)
@@ -285,8 +300,6 @@ func getIdentityDetails(ctx *fasthttp.RequestCtx) {
 	if err2 != nil {
 		fmt.Println(err2)
 	}
-
-	fmt.Println("name", name)
 
 	if row != nil {
 		ctx.SetStatusCode(200)
@@ -600,6 +613,12 @@ func InitRooter() *router.Router {
 	r.GET("/api/v1/identities/{page}", setResponseHeader(getIdentitiesSlice))
 	r.GET("/api/v1/richlist/{page}", setResponseHeader(getAccountsSlice))
 	r.GET("/api/v1/checkupdate/{os?}/{arch?}", setResponseHeader(checkUpdate))
+
+	// Serve static UI files
+	r.ServeFiles("/css/{filepath:*}", "./ui/dist/css")
+	r.ServeFiles("/img/{filepath:*}", "./ui/dist/img")
+	r.ServeFiles("/js/{filepath:*}", "./ui/dist/js")
+	r.ServeFiles("/{filepath:*}", "./ui/dist")
 
 	return r
 }

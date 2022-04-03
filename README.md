@@ -18,12 +18,14 @@ Through my [kmdgo](https://github.com/satindergrewal/kmdgo) go package for Komod
 - [RethinkDB](https://rethinkdb.com/docs/install/)
 - [Git](https://git-scm.com/)
 - [verusd](https://github.com/VerusCoin/VerusCoin/releases)
+- [node.js](https://nodejs.org/)
 
 #### Dependencies
 
 - [RethinkDB](https://github.com/rethinkdb/rethinkdb-go) go driver package
 - Git
 - Make tools (`automake`, `make` etc.)
+- Node.js v17+
 
 # Install instructions
 
@@ -63,6 +65,24 @@ On MacOS can install using brew:
 
 ```shell
 brew update && brew install rethinkdb
+```
+
+#### Install Node.js
+
+On Linux it's best to install `node.js` and `npm` with a [Node Version Manager](https://github.com/nvm-sh/nvm).
+Best to follow `nvm` install instructions from it's github repository.
+
+Quick install instructions for Linux:
+
+```shell
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
+source ~/.bashrc
+```
+
+Install Instructions for macOS:
+
+```shell
+brew install node
 ```
 
 ## Setting up blockchain API
