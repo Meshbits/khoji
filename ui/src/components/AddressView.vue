@@ -3,6 +3,7 @@
     <h4 class="title">Address Details</h4>
     {{ address }}
     <h5 class="balance">Balance: {{ balance }} VRSCTEST</h5>
+    <b-spinner v-if="balance === null || transactions === null" type="grow"></b-spinner>
     <div v-if="transactions">
       <h5>Transactions</h5>
       <table v-for="transactionDetails in transactions" :key="transactionDetails.hash" class="transacction-details-small margin-top table b-table table-striped table-hover text-left">

@@ -1,6 +1,7 @@
 <template>
   <div class="identities-table">
     <h4>Last identities</h4>
+    <b-spinner v-if="identities === null" type="grow"></b-spinner>
     <b-table striped hover :items="identities" :fields="fields">
       <template #cell(name)="data">
         <router-link :to="{ path: '/identity/' + data.value }">{{ data.value }}</router-link>

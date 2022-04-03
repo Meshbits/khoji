@@ -1,6 +1,7 @@
 <template>
   <div>
     <h4>Last transactions</h4>
+    <b-spinner v-if="transactions === null" type="grow"></b-spinner>
     <b-table striped hover :items="transactions" :fields="fields">
       <template #cell(hash)="data">
         <router-link :to="{ path: '/transaction/' + data.value }">{{ data.value.substr(0, 4) }}...{{ data.value.substr(data.value.length - 4, 4) }}</router-link>
