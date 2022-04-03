@@ -1,7 +1,8 @@
 <template>
-  <div class="networks-table" v-if="networkInfo !== null">
+  <div class="networks-table">
     <h4>Network Info</h4>
-    <table class="table b-table table-striped table-hover text-left">
+    <b-spinner v-if="networkInfo === null" type="grow"></b-spinner>
+    <table v-if="networkInfo" class="table b-table table-striped table-hover text-left">
       <tbody>
         <tr>
           <td>

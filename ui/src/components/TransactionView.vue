@@ -1,7 +1,8 @@
 <template>
   <div>
     <h4>Transaction Details</h4>
-    <table class="table b-table table-striped table-hover text-left">
+    <b-spinner v-if="transactionDetails === null" type="grow"></b-spinner>
+    <table v-if="transactionDetails" class="table b-table table-striped table-hover text-left">
       <tbody>
         <tr>
           <td>
