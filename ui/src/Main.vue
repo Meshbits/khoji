@@ -1,6 +1,5 @@
 <template>
   <div>
-    <img alt="Vue logo" src="./assets/logo.png" width="70px" style="margin: 20px 0 40px 0">
     <div class="container">
       <div class="row">
         <div class="col-sm">
