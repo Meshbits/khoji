@@ -9,7 +9,7 @@
             Height
           </td>
           <td>
-            {{ transactionDetails.blockHeight }}
+            <router-link :to="{path: '/block/' + transactionDetails.blockHeight}">{{transactionDetails.blockHeight}}</router-link>
           </td>
         </tr>
         <tr>
@@ -17,7 +17,7 @@
             Block hash
           </td>
           <td>
-            {{ transactionDetails.blockHash }}
+            <router-link :to="{path: '/block/' + transactionDetails.blockHeight}">{{transactionDetails.blockHash}}</router-link>
           </td>
         </tr>
         <tr>
@@ -25,7 +25,7 @@
             Time
           </td>
           <td>
-            {{ transactionDetails.timestamp }}
+            {{ transactionDetails.timestampHumanReadable }}
           </td>
         </tr>
         <tr>
@@ -45,19 +45,28 @@
           </td>
         </tr>
         <tr>
-          <td>
-            Inputs
-          </td>
-          <td>
-            <pre>{{ JSON.stringify(transactionDetails.vin, null, 2) }}</pre>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            Outputs
-          </td>
-          <td>
-            <pre>{{ JSON.stringify(transactionDetails.vout, null, 2) }}</pre>
+          <td colspan="2">
+            <table class="transaction-movement-table">
+              <thead>
+                <th>Inputs</th>
+                <th>Outputs</th>
+              </thead>
+              <tbody>
+                <tr>
+                  <td v-if="transactionDetails.movement !== null && transactionDetails.movement.input !== null && transactionDetails.movement.input.length > 0">
+                    <div v-for="[address, value] in transactionDetails.movement.input" :key="address" style="padding-bottom: 10px">
+                      <router-link :to="{ path: '/address/' + address }">{{address}}</router-link> <span style="padding-left: 10px">{{value}}</span>
+                    </div>
+                  </td>
+                  <td v-if="transactionDetails.movement.input && !transactionDetails.movement.input.length">Coinbase</td>
+                  <td v-if="transactionDetails.movement !== null && transactionDetails.movement.output !== null && transactionDetails.movement.output.length > 0">
+                    <div v-for="[address, value] in transactionDetails.movement.output" :key="address" style="padding-bottom: 10px">
+                      <router-link :to="{ path: '/address/' + address }">{{address}}</router-link> <span style="padding-left: 10px">{{value}}</span>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </td>
         </tr>
       </tbody>
@@ -68,6 +77,7 @@
 <script>
   import axios from 'axios';
   import {apiURL} from '../config';
+  import {transformTransactions} from './transaction-helpers';
 
   export default {
     computed: {
@@ -87,7 +97,7 @@
       fetchData () {
         axios
           .get(`${apiURL}/transaction/${this.$route.params.hash}`)
-          .then(response => (this.transactionDetails = response.data));
+          .then(response => (this.transactionDetails = transformTransactions([response.data])[0]));
       }
     },
     mounted () {
@@ -99,5 +109,15 @@
 <style scoped>
   .text-left {
     text-align: left;
+  }
+  .transaction-movement-table {
+    border-collapse: separate;
+    width: 100%;
+  }
+  .transaction-movement-table td {
+    width: 50%;
+  }
+  .transaction-movement-table td:last-child {
+    white-space: nowrap;
   }
 </style>
